@@ -1,0 +1,66 @@
+[
+  {
+    "id": 1,
+    "name": "Deterdžent za veš Limun",
+    "description": "Tečni deterđent sa osvežavajućim mirisom limuna...",
+    "price": 520.00,
+    "volume": "2.5L",
+    "image": "pro_v_1358264.jpg",
+    "available": true,
+    "category": "tecnosti",
+    "details": {
+      "Brend": "Semana",
+      "Zapremina": "2.5L",
+      "Rok upotrebe": "36 meseci",
+      "Način upotrebe": "Koristiti prema uputstvu na pakovanju"
+    }
+  },
+  {
+    "id": 2,
+    "name": "Sredstvo za sudove",
+    "description": "Ultra-aktivna formula...",
+    "price": 250.00,
+    "volume": "1L",
+    "image": "pro_v_1359000.jpg",
+    "available": true,
+    "category": "posudje",
+    "details": {
+      "Brend": "Čistoća",
+      "Zapremina": "1L",
+      "Rok upotrebe": "24 meseca",
+      "Način upotrebe": "Razblažiti s vodom"
+    }
+  },
+  {
+    "id": 3,
+    "name": "Sredstvo za stakla",
+    "description": "Specijalno sredstvo za beztrgno čišćenje stakala...",
+    "price": 255.00,
+    "volume": "1L",
+    "image": "pro_v_1359001.jpg",
+    "available": true,
+    "category": "stakla",
+    "details": {
+      "Brend": "Čistoća",
+      "Zapremina": "1L",
+      "Rok upotrebe": "24 meseca",
+      "Način upotrebe": "Direktno prskati na površinu"
+    }
+  },
+  {
+    "id": 4,
+    "name": "Sredstvo za stakla",
+    "description": "Specijalno sredstvo za beztrgno čišćenje stakala...",
+    "price": 255.00,
+    "volume": "1L",
+    "image": "pro_v_1359001.jpg",
+    "available": true,
+    "category": "stakla",
+    "details": {
+      "Brend": "Čistoća",
+      "Zapremina": "1L",
+      "Rok upotrebe": "24 meseca",
+      "Način upotrebe": "Direktno prskati na površinu"
+    }
+  }
+]

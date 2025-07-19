@@ -1,0 +1,3938 @@
+    <!DOCTYPE html>
+<html lang="sr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kućna Hemija Kopriva - Online Prodavnica</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <style>
+    :root {
+      --primary: #4CAF50;
+      --primary-dark: #388E3C;
+      --primary-light: #C8E6C9;
+      --secondary: #2E7D32;
+      --accent: #8BC34A;
+      --text: #333333;
+      --text-light: #757575;
+      --background: #f9f9f9;
+      --white: #ffffff;
+      --gray: #e0e0e0;
+      --error: #f44336;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --shadow-hover: 0 8px 15px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 100px;
+    }
+
+    body {
+      overflow-anchor: none;
+      background-color: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    body.cart-open {
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(150deg, var(--primary) 0%, var(--secondary) 100%);
+      color: var(--white);
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    .logo {
+      cursor: pointer;
+    }
+
+    .logo h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #ffffff, #f0f0f0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      letter-spacing: 1px;
+      transition: var(--transition);
+    }
+
+    .logo:hover h1 {
+      transform: scale(1.05);
+    }
+
+    .search-container {
+      flex: 1;
+      max-width: 500px;
+      margin: 0 2rem;
+      position: relative;
+      display: none;
+    }
+
+    .search-container input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border-radius: 50px;
+      border: none;
+      font-size: 1rem;
+      padding-left: 3rem;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-container i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+    }
+
+    nav ul {
+      display: flex;
+      list-style: none;
+    }
+
+    nav ul li {
+      margin-left: 1.5rem;
+      position: relative;
+    }
+
+    nav ul li a {
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+      padding: 0.5rem 0;
+      position: relative;
+      display: inline-block;
+    }
+
+    nav ul li a::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--white);
+      transition: var(--transition);
+    }
+
+    nav ul li a:hover::before {
+      width: 100%;
+    }
+
+    nav ul li a:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Specijalni stil za Katalog link */
+    nav ul li a[href="#katalog"] {
+      font-weight: 600;
+      color: var(--white);
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+      position: relative;
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      background: rgba(255, 255, 255, 0.15);
+      transition: var(--transition);
+    }
+
+    /* Pulsiranje samo kada nismo na katalog stranici */
+    body:not(.katalog-page) nav ul li a[href="#katalog"] {
+      animation: pulse 2s infinite;
+    }
+
+    nav ul li a[href="#katalog"]:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
+    }
+
+    nav ul li a[href="#katalog"]::before {
+      display: none;
+    }
+
+    nav ul li a[href="#katalog"]::after {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      right: -5px;
+      bottom: -5px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50px;
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    /* Animacija bordera samo kada nismo na katalog stranici */
+    body:not(.katalog-page) nav ul li a[href="#katalog"]::after {
+      animation: pulseBorder 2s infinite;
+    }
+
+    nav ul li a[href="#katalog"]:hover::after {
+      opacity: 1;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes pulseBorder {
+      0% {
+        transform: scale(1);
+        opacity: 0;
+      }
+
+      50% {
+        transform: scale(1.05);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 0;
+      }
+    }
+
+    .cart-icon {
+      position: relative;
+      margin-left: 2rem;
+      cursor: pointer;
+      font-size: 1.3rem;
+      transition: var(--transition);
+
+    }
+
+    .cart-icon:hover {
+      transform: scale(1.1) translateY(-2px);
+    }
+
+    .cart-count {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background-color: var(--secondary);
+      color: white;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: bold;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    main {
+      padding: 2rem;
+      min-height: 80vh;
+    }
+
+    .section {
+      animation: fadeIn 0.5s ease-out;
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero {
+      text-align: center;
+      padding: 5rem 2rem;
+      margin-bottom: 3rem;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: var(--white);
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('kopriva.jpg') center/cover;
+      opacity: 0.1;
+      z-index: 0;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero h2 {
+      font-size: 2.8rem;
+      margin-bottom: 1.5rem;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      animation: fadeInUp 1s ease;
+    }
+
+    .hero p {
+      font-size: 1.3rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+      animation: fadeInUp 1s ease 0.2s forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .btn {
+      display: inline-block;
+      background-color: var(--white);
+      color: var(--primary);
+      padding: 0.8rem 2rem;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: var(--transition);
+      border: 2px solid transparent;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 1s ease 0.4s forwards;
+      opacity: 0;
+    }
+
+    .btn:after,
+    .add-to-cart:after,
+    .submit-btn:after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+
+    .btn:hover:after,
+    .add-to-cart:hover:after,
+    .submit-btn:hover:after {
+      animation: ripple 1s ease-out;
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+      }
+
+      100% {
+        transform: scale(20, 20);
+        opacity: 0;
+      }
+    }
+
+    .btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      background-color: transparent;
+      color: var(--white);
+      border-color: var(--white);
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .section-title h2 {
+      font-size: 2.2rem;
+      color: var(--secondary);
+      display: inline-block;
+      padding-bottom: 0.5rem;
+      position: relative;
+    }
+
+    .section-title h2::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background-color: var(--primary);
+      border-radius: 3px;
+    }
+
+    .section-title p {
+      font-size: 1.1rem;
+      color: var(--text-light);
+      margin-top: 1rem;
+    }
+
+    .promotions {
+      margin: 4rem 0;
+    }
+
+    .promotion-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .promotion-card {
+      background-color: var(--white);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      position: relative;
+      transform-origin: center bottom;
+    }
+
+    .promotion-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .promotion-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background-color: var(--error);
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 50px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      z-index: 1;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .promotion-image {
+      height: 200px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f5f5f5;
+    }
+
+    .promotion-image img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      padding: 20px;
+      transition: var(--transition);
+    }
+
+    .promotion-card:hover .promotion-image img {
+      transform: scale(1.05);
+    }
+
+    .promotion-content {
+      padding: 1.5rem;
+    }
+
+    .promotion-content h3 {
+      color: var(--secondary);
+      margin-bottom: 0.5rem;
+      font-size: 1.3rem;
+    }
+
+    .promotion-price {
+      display: flex;
+      align-items: center;
+      margin: 1rem 0;
+    }
+
+    .promotion-price .old-price {
+      text-decoration: line-through;
+      color: var(--text-light);
+      margin-right: 1rem;
+    }
+
+    .promotion-price .new-price {
+      color: var(--error);
+      font-weight: bold;
+      font-size: 1.3rem;
+    }
+
+    .catalog-container {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .filter-sidebar {
+      width: 250px;
+      background-color: var(--white);
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      height: fit-content;
+      position: sticky;
+      top: 120px;
+    }
+
+    .filter-title {
+      font-size: 1.2rem;
+      color: var(--secondary);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--primary-light);
+    }
+
+    .filter-options {
+      list-style: none;
+      margin-bottom: 2rem;
+    }
+
+    .filter-options li {
+      margin-bottom: 0.5rem;
+    }
+
+    .filter-options a {
+      color: var(--text);
+      text-decoration: none;
+      transition: var(--transition);
+      display: block;
+      padding: 0.5rem 0.8rem;
+      border-radius: 5px;
+    }
+
+    .filter-options a:hover,
+    .filter-options a.active {
+      color: var(--primary);
+      background-color: var(--primary-light);
+      transform: translateX(5px);
+    }
+
+    .filter-options a i {
+      margin-right: 0.5rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .sort-options {
+      margin-top: 1.5rem;
+    }
+
+    .sort-options select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--gray);
+      border-radius: 5px;
+      background-color: var(--white);
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .sort-options select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .products-container {
+      flex: 1;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .product-card {
+      background-color: var(--white);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      cursor: pointer;
+      transform-origin: center bottom;
+      display: flex;
+      flex-direction: column;
+      height: 100%; /* Ovo osigurava da sve kartice imaju istu visinu */
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .product-image-container {
+      height: 220px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f5f5f5;
+    }
+
+    .product-image {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      transition: var(--transition);
+      padding: 20px;
+    }
+
+    .product-card:hover .product-image {
+      transform: scale(1.05);
+    }
+
+    .product-info {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1; /* Ovo osigurava da .product-info zauzme preostali prostor */
+    }
+
+    .product-info h3 {
+      margin-bottom: 0.5rem;
+      color: var(--secondary);
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .product-info p {
+      margin-bottom: 1rem;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .product-price {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 1.3rem;
+      margin: 1rem 0;
+    }
+
+    .product-volume {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .product-volume i {
+      margin-right: 0.5rem;
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+    .product-actions {
+      margin-top: auto; /* Ovo gura dugme na dno */
+    }
+
+    .add-to-cart {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 0.8rem 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+      font-weight: 500;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .add-to-cart:hover {
+      background-color: var(--primary-dark);
+      transform: scale(1.05);
+    }
+
+    .add-to-cart i {
+      margin-right: 0.5rem;
+    }
+
+    .product-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 1100;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .product-modal-content {
+      background-color: var(--white);
+      border-radius: 10px;
+      width: 90%;
+      max-width: 900px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2rem;
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      animation: modalFadeIn 0.3s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .product-modal-image {
+      max-width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      margin: 0 auto;
+      display: block;
+      background-color: #f5f5f5;
+      padding: 20px;
+      border-radius: 8px;
+      transition: var(--transition);
+    }
+
+    .product-modal-image:hover {
+      transform: scale(1.03);
+    }
+
+    .product-modal-info h2 {
+      color: var(--secondary);
+      margin-bottom: 1rem;
+    }
+
+    .product-modal-price {
+      font-size: 1.8rem;
+      color: var(--primary);
+      font-weight: 700;
+      margin: 1.5rem 0;
+    }
+
+    .product-modal-description {
+      margin-bottom: 1.5rem;
+      line-height: 1.7;
+    }
+
+    .product-details {
+      margin-top: auto; /* Gura detalje na dno unutar product-info */
+      padding-top: 1rem;
+      border-top: 1px solid var(--gray-light); /* Opciono - dodaje liniju iznad */
+    }
+
+    .product-details h4 {
+      color: var(--secondary);
+      margin-bottom: 0.8rem;
+    }
+
+    .product-details ul {
+      list-style-type: none;
+    }
+
+
+    .product-details li {
+      margin-bottom: 0.5rem;
+      display: flex;
+    }
+
+    .product-details li span:first-child {
+      font-weight: 500;
+      min-width: 120px;
+      color: var(--text-light);
+    }
+
+    .product-modal-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-light);
+      transition: var(--transition);
+    }
+
+    .product-modal-close:hover {
+      color: var(--primary);
+      transform: rotate(90deg);
+    }
+    .product-text-content {
+    flex: 1; /* Zauzima sav dostupan prostor, gurajući product-details na dno */
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: var(--white);
+      border-radius: 10px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2rem;
+      position: relative;
+      animation: modalFadeIn 0.3s ease-out;
+    }
+
+    .close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-light);
+      transition: var(--transition);
+    }
+
+    .close:hover {
+      color: var(--primary);
+      transform: rotate(90deg);
+    }
+
+    .cart-items {
+      overflow: hidden;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--gray);
+      gap: 1.5rem;
+      transition: var(--transition);
+    }
+
+    .cart-item:hover {
+      background-color: rgba(200, 230, 201, 0.3);
+    }
+
+    .cart-item-image {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border-radius: 8px;
+      background-color: #f5f5f5;
+      padding: 10px;
+      transition: var(--transition);
+    }
+
+    .cart-item:hover .cart-item-image {
+      transform: scale(1.05);
+    }
+
+    .cart-item-info {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .cart-item-name {
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: var(--secondary);
+      white-space: normal;
+      word-wrap: break-word;
+    }
+
+    .cart-item-price {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .cart-item-quantity {
+      display: flex;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+
+    .cart-item-quantity button {
+      background-color: var(--gray);
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .cart-item-quantity button:hover {
+      background-color: var(--primary-light);
+      transform: scale(1.1);
+    }
+
+    .cart-item-quantity input {
+      width: 50px;
+      text-align: center;
+      border: 1px solid var(--gray);
+      border-radius: 5px;
+      margin: 0 0.5rem;
+      padding: 0.3rem;
+      transition: var(--transition);
+    }
+
+    .cart-item-quantity input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+    }
+
+    .cart-item-remove {
+        color: var(--error);
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: transform 0.3s ease;
+        flex-shrink: 0;
+        transform-origin: center;
+    }
+
+    .cart-item-remove:hover {
+      transform: rotate(180deg) scale(1.2);
+    }
+
+    .cart-total {
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-align: right;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 2px solid var(--gray);
+      color: var(--secondary);
+    }
+
+    .cart-empty {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-light);
+    }
+
+    .cart-empty i {
+      font-size: 3rem;
+      color: var(--gray);
+      margin-bottom: 1.5rem;
+      transition: var(--transition);
+    }
+
+    .cart-empty:hover i {
+      transform: scale(1.1);
+      color: var(--primary);
+    }
+
+    .order-form {
+      margin-top: 2rem;
+      background-color: var(--background);
+      padding: 1.5rem;
+      border-radius: 10px;
+      transition: var(--transition);
+    }
+
+    .order-form:hover {
+      box-shadow: var(--shadow);
+    }
+
+    .order-form h3 {
+      margin-bottom: 1.5rem;
+      color: var(--secondary);
+      font-size: 1.3rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 1px solid var(--gray);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+    }
+
+    .error-message {
+      color: var(--error);
+      font-size: 0.8rem;
+      margin-top: 0.3rem;
+      display: none;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .submit-btn {
+      background-color: var(--primary);
+      color: var(--white);
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      width: 100%;
+      margin-top: 1rem;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .submit-btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .register-form {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background-color: var(--primary-light);
+      border-radius: 10px;
+      transition: var(--transition);
+    }
+
+    .register-form:hover {
+      box-shadow: var(--shadow);
+    }
+
+    .register-form h3 {
+      color: var(--secondary);
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+    }
+
+    .register-form p {
+      margin-bottom: 1rem;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .register-toggle {
+      background: none;
+      border: none;
+      color: var(--primary-dark);
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 0.9rem;
+      padding: 0;
+      transition: var(--transition);
+    }
+
+    .register-toggle:hover {
+      color: var(--secondary);
+      transform: translateX(5px);
+    }
+
+    footer {
+      background-color: #263238;
+      color: var(--white);
+      padding: 3rem 2rem 2rem;
+      margin-top: 0rem;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+
+    }
+
+    .footer-section {
+      margin-bottom: 1.5rem;
+      transition: var(--transition);
+    }
+
+    .footer-section:hover {
+      transform: translateY(-5px);
+    }
+
+    .footer-section h3 {
+      color: var(--primary-light);
+      margin-bottom: 1.5rem;
+      font-size: 1.2rem;
+      position: relative;
+      padding-bottom: 0.5rem;
+    }
+
+    .footer-section h3::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 2px;
+      background-color: var(--primary);
+      transition: var(--transition);
+    }
+
+    .footer-section:hover h3::after {
+      width: 70px;
+    }
+
+    .footer-section p {
+      color: #B0BEC5;
+      margin-bottom: 1rem;
+      line-height: 1.7;
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.8rem;
+    }
+
+    .footer-links a {
+      color: #B0BEC5;
+      text-decoration: none;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+    }
+
+    .footer-links a:hover,
+    .footer-links a.active {
+      color: var(--primary-light);
+      transform: translateX(5px);
+    }
+
+
+    .footer-links a i {
+      margin-right: 0.5rem;
+      font-size: 0.8rem;
+    }
+    .footer-section:nth-child(3) {  /* Ovo targetira treću footer sekciju (Brzi linkovi) */
+    margin-left: auto;
+    padding-right: 170px; /* Pomeri celu sekciju 30px u desno */
+    }
+
+    .contact-info {
+      list-style: none;
+    }
+
+    .contact-info li {
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .contact-info i {
+      color: var(--primary);
+      margin-right: 1rem;
+      margin-top: 0.2rem;
+      transition: var(--transition);
+    }
+
+    .contact-info li:hover i {
+      transform: scale(1.2);
+    }
+
+    .copyright {
+      text-align: center;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid #37474F;
+      color: #78909C;
+      font-size: 0.9rem;
+    }
+
+.notification {
+  background-color: var(--primary);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 8px;
+  box-shadow: var(--shadow-hover);
+  max-width: 350px;
+  backdrop-filter: blur(5px);
+  border-left: 5px solid var(--primary-dark);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  margin-bottom: 10px;
+}
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .gallery-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .gallery-item {
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      height: 350px;
+    }
+
+    .gallery-item:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .gallery-item:hover img {
+      transform: scale(1.1);
+    }
+
+    .footer-section p {
+      color: #B0BEC5;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .footer-section p i {
+      margin-right: 0.8rem;
+      color: var(--primary);
+      width: 20px;
+      text-align: center;
+    }
+
+    #glavna~.search-container {
+      display: none !important;
+    }
+
+    #katalog {
+      scroll-margin-top: 100px;
+    }
+
+    #backToTop {
+      width: 50px;
+      height: 50px;
+      padding: 0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      line-height: 1;
+      border: none;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 999;
+      display: none;
+      transition: var(--transition);
+      opacity: 0.9;
+    }
+
+    #backToTop:hover {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary) 100%);
+      transform: translateY(-3px) scale(1.1);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+      opacity: 1;
+    }
+
+    #backToTop::after {
+      content: "Nazad na vrh";
+      position: absolute;
+      bottom: 130%;
+      right: 50%;
+      transform: translateX(50%) translateY(0);
+      background-color: #333;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+
+    #backToTop:hover::after {
+      opacity: 1;
+      transform: translateX(50%) translateY(-5px);
+    }
+
+    .catalog-search-container {
+      display: none;
+      margin-bottom: 2rem;
+      position: relative;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .catalog-search-container.active {
+      display: block;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .catalog-search-container input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border-radius: 50px;
+      border: 1px solid var(--gray);
+      font-size: 1rem;
+      padding-left: 3rem;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+
+    .catalog-search-container input:focus {
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+    }
+
+    .catalog-search-container i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+      transition: var(--transition);
+    }
+
+    .catalog-search-container input:focus+i {
+      color: var(--primary);
+    }
+
+    .product-availability {
+      font-size: 0.9rem;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .product-availability i {
+      margin-right: 0.5rem;
+      transition: var(--transition);
+    }
+
+    .in-stock {
+      color: #4CAF50;
+    }
+
+    .out-of-stock {
+      color: #f44336;
+    }
+
+    /* Social media icons */
+    .social-media {
+      display: flex;
+      gap: 15px;
+      margin-top: 1.5rem;
+    }
+
+    .social-media a {
+      color: #B0BEC5;
+      font-size: 1.5rem;
+      transition: var(--transition);
+    }
+
+    .social-media a:hover {
+      transform: translateY(-3px);
+    }
+
+    .social-media .facebook:hover {
+      color: #3b5998;
+    }
+
+    .social-media .instagram:hover {
+      color: #E1306C;
+    }
+
+    /* Promocioni baner */
+    .promo-banner {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      max-width: 90%;
+      width: 500px;
+      z-index: 9999;
+      display: none;
+      animation: slideUp 0.5s ease-out forwards;
+      border-left: 5px solid var(--primary);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(100px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    .promo-banner-content {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .promo-banner-image {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      border-radius: 8px;
+      background-color: #f5f5f5;
+      padding: 10px;
+    }
+
+    .promo-banner-text h3 {
+      color: var(--secondary);
+      margin-bottom: 5px;
+      font-size: 1.2rem;
+    }
+
+    .promo-banner-text p {
+      color: var(--text-light);
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+
+    .promo-banner-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: var(--text-light);
+      transition: var(--transition);
+    }
+
+    .promo-banner-close:hover {
+      color: var(--error);
+      transform: rotate(90deg);
+    }
+
+    .promo-banner-btn {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 15px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .promo-banner-btn:hover {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary) 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Tooltip for out of stock button */
+    .out-of-stock-tooltip {
+      position: relative;
+      display: inline-block;
+    }
+
+    .out-of-stock-tooltip .tooltiptext {
+      visibility: hidden;
+      width: 200px;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -100px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 0.8rem;
+    }
+
+    .out-of-stock-tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* FAQ Styles */
+    .faq-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .faq-item {
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--gray);
+      padding-bottom: 1.5rem;
+      transition: var(--transition);
+    }
+
+    .faq-item:last-child {
+      border-bottom: none;
+    }
+
+    .faq-question {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--secondary);
+      margin-bottom: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .faq-question i {
+      transition: var(--transition);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .faq-item.active .faq-question i {
+      transform: rotate(180deg);
+    }
+
+    .faq-item.active .faq-answer {
+      max-height: 500px;
+    }
+
+    /* Blog Styles */
+    .blog-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .blog-posts {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .blog-post {
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+
+    .blog-post:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .blog-post-image {
+      height: 200px;
+      overflow: hidden;
+    }
+
+    .blog-post-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .blog-post:hover .blog-post-image img {
+      transform: scale(1.05);
+    }
+
+    .blog-post-content {
+      padding: 1.5rem;
+    }
+
+    .blog-post-date {
+      color: var(--text-light);
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .blog-post-date i {
+      margin-right: 0.5rem;
+    }
+
+    .blog-post-title {
+      font-size: 1.3rem;
+      color: var(--secondary);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .blog-post-excerpt {
+      color: var(--text-light);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .read-more {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .read-more:hover {
+      color: var(--primary-dark);
+      transform: translateX(5px);
+    }
+
+    .read-more i {
+      margin-left: 0.5rem;
+      transition: var(--transition);
+    }
+
+    .read-more:hover i {
+      transform: translateX(3px);
+    }
+
+    /* Improved Our Local Section */
+    .our-local-section {
+      margin: 4rem auto;
+      max-width: 1200px;
+      text-align: center;
+    }
+
+    .our-local-header {
+      max-width: 800px;
+      margin: 0 auto 2rem;
+      position: relative;
+      padding-bottom: 20px;
+    }
+
+    .our-local-title {
+      font-size: 2rem;
+      color: var(--secondary);
+      margin-bottom: 1rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    .our-local-title::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background-color: var(--primary);
+      border-radius: 3px;
+    }
+
+    .our-local-description {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: var(--text-light);
+      margin-top: 2rem;
+    }
+
+    .our-local-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .our-local-gallery-item {
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      height: 250px;
+      position: relative;
+    }
+
+    .our-local-gallery-item:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .our-local-gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .our-local-gallery-item:hover img {
+      transform: scale(1.05);
+    }
+
+    .our-local-gallery-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 1rem;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+    }
+
+    .our-local-gallery-item:hover .our-local-gallery-caption {
+      transform: translateY(0);
+    }
+
+    /* Blog on Homepage */
+    .home-blog-section {
+      margin: 4rem 0;
+      background-color: var(--white);
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .home-blog-posts {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .home-blog-post {
+      background-color: var(--white);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+
+    .home-blog-post:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .home-blog-post-image {
+      height: 180px;
+      overflow: hidden;
+    }
+
+    .home-blog-post-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .home-blog-post:hover .home-blog-post-image img {
+      transform: scale(1.05);
+    }
+
+    .home-blog-post-content {
+      padding: 1.5rem;
+    }
+
+    .home-blog-post-title {
+      font-size: 1.2rem;
+      color: var(--secondary);
+      margin-bottom: 0.8rem;
+      font-weight: 600;
+    }
+
+    .home-blog-post-excerpt {
+      color: var(--text-light);
+      margin-bottom: 1rem;
+      line-height: 1.6;
+      font-size: 0.9rem;
+    }
+
+    /* Blog Article Page Styles */
+    .blog-article {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .blog-article-image {
+      width: 100%;
+      height: 400px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+    }
+
+    .blog-article-title {
+      font-size: 2rem;
+      color: var(--secondary);
+      margin-bottom: 1rem;
+    }
+
+    .blog-article-meta {
+      display: flex;
+      align-items: center;
+      margin-bottom: 2rem;
+      color: var(--text-light);
+    }
+
+    .blog-article-meta i {
+      margin-right: 0.5rem;
+    }
+
+    .blog-article-meta span {
+      margin-right: 1.5rem;
+    }
+
+    .blog-article-content {
+      line-height: 1.8;
+    }
+
+    .blog-article-content p {
+      margin-bottom: 1.5rem;
+    }
+
+    .blog-article-content h2,
+    .blog-article-content h3 {
+      color: var(--secondary);
+      margin: 2rem 0 1rem;
+    }
+
+    .blog-article-content ul,
+    .blog-article-content ol {
+      margin-bottom: 1.5rem;
+      padding-left: 2rem;
+    }
+
+    .blog-article-content li {
+      margin-bottom: 0.5rem;
+    }
+
+    .blog-article-content blockquote {
+      border-left: 4px solid var(--primary);
+      padding-left: 1.5rem;
+      margin: 1.5rem 0;
+      color: var(--text-light);
+      font-style: italic;
+    }
+
+    .back-to-blog {
+      display: inline-flex;
+      align-items: center;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      margin-top: 2rem;
+      transition: var(--transition);
+    }
+
+    .back-to-blog:hover {
+      color: var(--primary-dark);
+      transform: translateX(-5px);
+    }
+
+    .back-to-blog i {
+      margin-right: 0.5rem;
+      transition: var(--transition);
+    }
+
+    .back-to-blog:hover i {
+      transform: translateX(-3px);
+    }
+
+    /* Newsletter Subscription */
+    .newsletter-section {
+      margin: 4rem 0;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      padding: 3rem 2rem;
+      border-radius: 10px;
+      color: white;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .newsletter-title {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .newsletter-description {
+      max-width: 600px;
+      margin: 0 auto 2rem;
+      opacity: 0.9;
+    }
+
+    .newsletter-form {
+      display: flex;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .newsletter-input {
+      flex: 1;
+      padding: 0.8rem 1rem;
+      border: none;
+      border-radius: 50px 0 0 50px;
+      font-size: 1rem;
+    }
+
+    .newsletter-input:focus {
+      outline: none;
+    }
+
+    .newsletter-button {
+      background-color: var(--white);
+      color: var(--primary);
+      border: none;
+      border-radius: 0 50px 50px 0;
+      padding: 0 1.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .newsletter-button:hover {
+      background-color: var(--primary-light);
+      color: var(--white);
+    }
+
+    /* Pagination Styles */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin: 3rem 0;
+      padding: 1rem 0;
+    }
+
+    .pagination-list {
+      display: flex;
+      list-style: none;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .pagination-item {
+      margin: 0;
+    }
+
+    .pagination-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--white);
+      color: var(--secondary);
+      text-decoration: none;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      border: 1px solid var(--gray);
+    }
+
+    .pagination-link:hover,
+    .pagination-link.active {
+      background-color: var(--primary);
+      color: var(--white);
+      transform: translateY(-2px);
+      border-color: var(--primary);
+    }
+
+    .pagination-link.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+      background-color: var(--gray);
+    }
+
+    .pagination-link i {
+      font-size: 0.9rem;
+    }
+
+    .pagination-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      color: var(--text-light);
+    }
+
+    /* Thank you message with fireworks */
+    .thank-you-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .thank-you-message {
+      background-color: white;
+      padding: 3rem;
+      border-radius: 10px;
+      text-align: center;
+      max-width: 600px;
+      position: relative;
+      z-index: 2001;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .thank-you-message h2 {
+      color: var(--primary);
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .thank-you-message p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      color: var(--text);
+    }
+
+    .thank-you-message .btn {
+      margin-top: 1rem;
+    }
+
+    .firework {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.8);
+      animation: firework-animation 1s ease-out forwards;
+      z-index: 2000;
+    }
+
+    @keyframes firework-animation {
+      0% {
+        transform: translate(0, 0);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--tx), var(--ty));
+        opacity: 0;
+      }
+    }
+
+    /* Cart item animations */
+@keyframes cartItemAdd {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+    max-height: 0;
+    padding: 0;
+    margin: 0;
+    border-bottom: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    max-height: 200px;
+    padding: 1rem 0;
+    margin: initial;
+    border-bottom: 1px solid var(--gray);
+  }
+}
+
+@keyframes cartItemRemove {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+    max-height: 200px;
+    padding: 1rem 0;
+    margin: initial;
+    border-bottom: 1px solid var(--gray);
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0;
+    max-height: 0;
+    padding: 0;
+    margin: 0;
+    border-bottom: 0;
+  }
+}
+
+.cart-item.adding {
+  animation: cartItemAdd 0.3s ease-out forwards;
+}
+
+.cart-item.removing {
+  animation: cartItemRemove 0.3s ease-out forwards;
+  pointer-events: none;
+}
+
+    /* Cart scroll lock */
+    body.cart-open {
+      overflow: hidden;
+    }
+
+    /* Order confirmation note */
+    .order-confirmation-note {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      margin-top: 1rem;
+      text-align: center;
+      font-style: italic;
+    }
+
+    @media (max-width: 992px) {
+      .catalog-container {
+        flex-direction: column;
+      }
+
+      .filter-sidebar {
+        width: 100%;
+        position: static;
+      }
+
+      .product-modal-content {
+        grid-template-columns: 1fr;
+      }
+
+      .our-local-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .newsletter-form {
+        flex-direction: column;
+      }
+
+      .newsletter-input {
+        border-radius: 50px;
+        margin-bottom: 1rem;
+      }
+
+      .newsletter-button {
+        border-radius: 50px;
+        padding: 0.8rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        padding: 1rem;
+        text-align: center;
+      }
+
+      .search-container {
+        margin: 1rem 0;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      nav ul {
+        margin-top: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      nav ul li {
+        margin: 0.5rem 1rem;
+      }
+
+      .cart-icon {
+        margin-left: 1rem;
+        margin-top: 0.5rem;
+      }
+
+      .hero {
+        padding: 3rem 1rem;
+      }
+
+      .hero h2 {
+        font-size: 1.8rem;
+      }
+
+      .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      }
+
+      .cart-item {
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .cart-item-info {
+        min-width: 100%;
+      }
+
+      .promo-banner {
+        width: 90%;
+        padding: 15px;
+      }
+
+      .promo-banner-content {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .promo-banner-image {
+        width: 80px;
+        height: 80px;
+      }
+
+      .blog-posts,
+      .home-blog-posts {
+        grid-template-columns: 1fr;
+      }
+
+      .blog-article-image {
+        height: 250px;
+      }
+
+      .thank-you-message {
+        padding: 2rem;
+        width: 90%;
+      }
+
+      .thank-you-message h2 {
+        font-size: 1.8rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero h2 {
+        font-size: 1.5rem;
+      }
+
+      .section-title h2 {
+        font-size: 1.8rem;
+      }
+
+      .footer-content {
+        grid-template-columns: 1fr;
+      }
+
+      .our-local-title {
+        font-size: 1.5rem;
+      }
+
+      .blog-article-title {
+        font-size: 1.5rem;
+      }
+
+      .blog-article-meta {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .blog-article-meta span {
+        margin-bottom: 0.5rem;
+      }
+    }
+    /* Thank you message with fireworks */
+      .thank-you-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .thank-you-message {
+        background-color: white;
+        padding: 3rem;
+        border-radius: 10px;
+        text-align: center;
+        max-width: 600px;
+        position: relative;
+        z-index: 2001;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .thank-you-message h2 {
+        color: var(--primary);
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .thank-you-message p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        color: var(--text);
+      }
+
+      .thank-you-message .btn {
+        margin-top: 1rem;
+      }
+
+      .firework {
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.8);
+        animation: firework-animation 1s ease-out forwards;
+        z-index: 2000;
+      }
+
+      @keyframes firework-animation {
+        0% {
+          transform: translate(0, 0);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(var(--tx), var(--ty));
+          opacity: 0;
+        }
+      }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Glavni header -->
+  <header>
+    <div class="logo" onclick="showSection('glavna')">
+      <h1>Kućna Hemija Kopriva</h1>
+    </div>
+
+    <div class="search-container">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Pretraži proizvode...">
+    </div>
+
+    <nav>
+      <ul>
+        <li><a href="#glavna" onclick="showSection('glavna')">Početna</a></li>
+        <li><a href="#katalog" onclick="showSection('katalog')">Katalog</a></li>
+        <li><a href="#blog" onclick="showSection('blog')">Blog</a></li>
+        <li><a href="#faq" onclick="showSection('faq')">FAQ</a></li>
+        <li><a href="#onama" onclick="showSection('onama')">O nama</a></li>
+        <li class="cart-icon" onclick="openCartModal()">
+          <i class="fas fa-shopping-cart"></i>
+          <span class="cart-count" id="cart-count">0</span>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Glavni sadržaj -->
+  <main>
+    <!-- Sekcija Glavna -->
+    <section id="glavna" class="section">
+      <div class="hero">
+        <div class="hero-content">
+          <h2>Dobrodošli u Kućnu Hemiju Kopriva</h2>
+          <p>Najkvalitetniji proizvodi za vaš dom po najpovoljnijim cenama</p>
+          <a href="#katalog" onclick="showSection('katalog')" class="btn">Pogledajte naš katalog</a>
+        </div>
+      </div>
+
+      <!-- Sekcija Akcije -->
+      <div class="promotions">
+        <div class="section-title">
+          <h2>Akcije i promocije</h2>
+          <p style="font-size: 1.4rem; font-weight: 500; margin-bottom: 1.5rem;">Posebne ponude za naše kupce</p>
+        </div>
+
+        <div class="promotion-cards">
+          <div class="promotion-card">
+            <div class="promotion-badge">-20%</div>
+            <div class="promotion-image">
+              <img src="pro_v_1358264.jpg" alt="Deterdžent za veš Limun">
+            </div>
+            <div class="promotion-content">
+              <h3>Deterdžent za veš Limun</h3>
+              <p>Tečni deterđent sa osvežavajućim mirisom limuna, za sve vrste veša.</p>
+              <div class="promotion-price">
+                <span class="old-price">650.00 RSD</span>
+                <span class="new-price">520.00 RSD</span>
+              </div>
+              <button class="add-to-cart" onclick="addToCart(1)">
+                <i class="fas fa-cart-plus"></i> Dodaj u korpu
+              </button>
+            </div>
+          </div>
+
+          <div class="promotion-card">
+            <div class="promotion-badge">-15%</div>
+            <div class="promotion-image">
+              <img src="pro_v_1358264.jpg" alt="Prasak za veš Classic">
+            </div>
+            <div class="promotion-content">
+              <h3>Prasak za veš Classic</h3>
+              <p>Standardni prasak za belo i obojeno veš, ekonomsko pakovanje.</p>
+              <div class="promotion-price">
+                <span class="old-price">565.00 RSD</span>
+                <span class="new-price">480.00 RSD</span>
+              </div>
+              <button class="add-to-cart" onclick="addToCart(3)">
+                <i class="fas fa-cart-plus"></i> Dodaj u korpu
+              </button>
+            </div>
+          </div>
+
+          <div class="promotion-card">
+            <div class="promotion-badge">Kombi paket</div>
+            <div class="promotion-image">
+              <img src="pro_v_1358264.jpg" alt="Kombi paket">
+            </div>
+            <div class="promotion-content">
+              <h3>Kombi paket za pranje</h3>
+              <p>Deterdžent + omekšivač + prasak sa 10% popusta.</p>
+              <div class="promotion-price">
+                <span class="old-price">1,490.00 RSD</span>
+                <span class="new-price">1,341.00 RSD</span>
+              </div>
+              <button class="add-to-cart" onclick="addComboToCart()">
+                <i class="fas fa-cart-plus"></i> Dodaj u korpu
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Improved "Naš lokal u Zaječaru" section -->
+      <div class="our-local-section">
+        <div class="our-local-header">
+          <h2 class="our-local-title">Naš lokal u Zaječaru</h2>
+          <p class="our-local-description">
+            Posetite našu prodavnicu u centru Zaječara i isprobajte kvalitet naših proizvoda uz stručne savete našeg osoblja.
+          </p>
+        </div>
+
+        <div class="our-local-gallery">
+          <div class="our-local-gallery-item">
+            <img src="kopriva.jpg" alt="Proizvod 1 u upotrebi">
+            <div class="our-local-gallery-caption">Pogled na našu prodavnicu</div>
+          </div>
+          <div class="our-local-gallery-item">
+            <img src="kopriva.jpg" alt="Proizvod 2 u upotrebi">
+            <div class="our-local-gallery-caption">Unutrašnjost prodavnice</div>
+          </div>
+          <div class="our-local-gallery-item">
+            <img src="kopriva.jpg" alt="Proizvod 3 u upotrebi">
+            <div class="our-local-gallery-caption">Naše proizvode možete videti uživo</div>
+          </div>
+          <div class="our-local-gallery-item">
+            <img src="kopriva.jpg" alt="Proizvod 4 u upotrebi">
+            <div class="our-local-gallery-caption">Radno vreme: 08-20h</div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Blog posts on homepage -->
+      <div class="home-blog-section">
+        <div class="section-title">
+          <h2>Najnovije sa bloga</h2>
+          <p>Saznajte korisne savete i informacije o našim proizvodima</p>
+        </div>
+
+        <div class="home-blog-posts">
+          <div class="home-blog-post">
+            <div class="home-blog-post-image">
+              <img src="kopriva.jpg" alt="Kako pravilno prati veš">
+            </div>
+            <div class="home-blog-post-content">
+              <h3 class="home-blog-post-title">Kako pravilno prati veš da bi trajao duže</h3>
+              <p class="home-blog-post-excerpt">Saznajte najbolje prakse za pranje veša kako biste produžili životni vek svoje odeće i uštedeli novac...</p>
+              <a href="#blog-article-1" onclick="showBlogArticle('blog-article-1')" class="read-more">Pročitaj više <i class="fas fa-arrow-right"></i></a>
+            </div>
+          </div>
+
+          <div class="home-blog-post">
+            <div class="home-blog-post-image">
+              <img src="kopriva.jpg" alt="Ekološki proizvodi">
+            </div>
+            <div class="home-blog-post-content">
+              <h3 class="home-blog-post-title">Zašto koristiti ekološki prihvatljive proizvode za čišćenje</h3>
+              <p class="home-blog-post-excerpt">Otkrivamo prednosti korišćenja ekoloških proizvoda za čišćenje i kako oni utiču na vaše zdravlje i okolinu...</p>
+              <a href="#blog-article-2" onclick="showBlogArticle('blog-article-2')" class="read-more">Pročitaj više <i class="fas fa-arrow-right"></i></a>
+            </div>
+          </div>
+
+          <div class="home-blog-post">
+            <div class="home-blog-post-image">
+              <img src="kopriva.jpg" alt="Ušteda energije">
+            </div>
+            <div class="home-blog-post-content">
+              <h3 class="home-blog-post-title">Kako uštedeti energiju i vodu prilikom pranja veša</h3>
+              <p class="home-blog-post-excerpt">Praktični saveti kako smanjiti potrošnju energije i vode prilikom pranja veša bez žrtvovanja čistoće...</p>
+              <a href="#blog-article-3" onclick="showBlogArticle('blog-article-3')" class="read-more">Pročitaj više <i class="fas fa-arrow-right"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Newsletter Subscription -->
+      <div class="newsletter-section">
+        <h3 class="newsletter-title">Prijavite se na naš newsletter</h3>
+        <p class="newsletter-description">Budite u toku sa najnovijim akcijama, proizvodima i savetima direktno u vašu inbox.</p>
+        <form class="newsletter-form">
+          <input type="email" class="newsletter-input" placeholder="Vaša email adresa" required>
+          <button type="submit" class="newsletter-button">Prijavi se</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Sekcija Katalog -->
+    <section id="katalog" class="section">
+      <div class="section-title">
+        <h2>Naš katalog proizvoda</h2>
+        <p>Izaberite proizvode za vaš dom</p>
+      </div>
+
+      <!-- Search bar specifičan za katalog -->
+      <div class="catalog-search-container" id="catalog-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="catalog-search-input" placeholder="Pretraži proizvode u katalogu..." onkeyup="searchCatalogProducts()">
+      </div>
+
+      <div class="catalog-container">
+        <div class="filter-sidebar">
+          <h3 class="filter-title">Kategorije</h3>
+          <ul class="filter-options">
+            <li><a href="#" class="active" onclick="filterProducts('all', event)"><i class="fas fa-list"></i> Svi proizvodi</a></li>
+            <li><a href="#" onclick="filterProducts('tecnosti', event)"><i class="fas fa-tint"></i> Tečnosti za pranje veša</a></li>
+            <li><a href="#" onclick="filterProducts('prasak', event)"><i class="fas fa-cloud"></i> Prašak za pranje</a></li>
+            <li><a href="#" onclick="filterProducts('sapuni', event)"><i class="fas fa-soap"></i> Sapuni</a></li>
+            <li><a href="#" onclick="filterProducts('omeksivaci', event)"><i class="fas fa-tshirt"></i> Omekšivači</a></li>
+            <li><a href="#" onclick="filterProducts('posudje', event)"><i class="fas fa-utensils"></i> Sredstva za posuđe</a></li>
+            <li><a href="#" onclick="filterProducts('podovi', event)"><i class="fas fa-broom"></i> Sredstva za podove</a></li>
+            <li><a href="#" onclick="filterProducts('kupatilo', event)"><i class="fas fa-bath"></i> Sredstva za kupatilo</a></li>
+            <li><a href="#" onclick="filterProducts('kuhinja', event)"><i class="fas fa-utensils"></i> Sredstva za kuhinju</a></li>
+            <li><a href="#" onclick="filterProducts('ostalo', event)"><i class="fas fa-ellipsis-h"></i> Ostalo</a></li>
+          </ul>
+
+          <div class="sort-options">
+            <h3 class="filter-title">Sortiraj po</h3>
+            <select id="sort-products" onchange="sortProducts()">
+              <option value="default">Podrazumevano</option>
+              <option value="price-asc">Ceni - rastuće</option>
+              <option value="price-desc">Ceni - opadajuće</option>
+              <option value="name-asc">Nazivu - A do Ž</option>
+              <option value="name-desc">Nazivu - Ž do A</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="products-container">
+        <div class="products-grid" id="products-container">
+          <!-- Proizvodi će biti dinamički dodati ovde -->
+        </div>
+        
+        <!-- Dodajte ovu paginaciju -->
+        <div class="pagination" id="pagination">
+          <ul class="pagination-list">
+            <li class="pagination-item">
+              <a href="#" class="pagination-link" id="prev-page" onclick="changePage(-1)">
+                <i class="fas fa-chevron-left"></i>
+              </a>
+            </li>
+            <!-- Brojevi stranica će biti dinamički dodati ovde -->
+            <li class="pagination-item">
+              <a href="#" class="pagination-link" id="next-page" onclick="changePage(1)">
+                <i class="fas fa-chevron-right"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sekcija Blog -->
+    <section id="blog" class="section">
+      <div class="section-title">
+        <h2>Blog - Saveti i uputstva</h2>
+        <p>Saznajte kako najbolje koristiti naše proizvode</p>
+      </div>
+
+      <div class="blog-container">
+        <div class="blog-posts">
+          <div class="blog-post">
+            <div class="blog-post-image">
+              <img src="kopriva.jpg" alt="Kako pravilno prati veš">
+            </div>
+            <div class="blog-post-content">
+              <div class="blog-post-date">
+                <i class="far fa-calendar-alt"></i> 15. Jun 2023
+              </div>
+              <h3 class="blog-post-title">Kako pravilno prati veš da bi trajao duže</h3>
+              <p class="blog-post-excerpt">Saznajte najbolje prakse za pranje veša kako biste produžili životni vek svoje odeće i uštedeli novac...</p>
+              <a href="#blog-article-1" onclick="showBlogArticle('blog-article-1')" class="read-more">Pročitaj više <i class="fas fa-arrow-right"></i></a>
+            </div>
+          </div>
+
+          <div class="blog-post">
+            <div class="blog-post-image">
+              <img src="kopriva.jpg" alt="Ekološki proizvodi">
+            </div>
+            <div class="blog-post-content">
+              <div class="blog-post-date">
+                <i class="far fa-calendar-alt"></i> 2. Maj 2023
+              </div>
+              <h3 class="blog-post-title">Zašto koristiti ekološki prihvatljive proizvode za čišćenje</h3>
+              <p class="blog-post-excerpt">Otkrivamo prednosti korišćenja ekoloških proizvoda za čišćenje i kako oni utiču na vaše zdravlje i okolinu...</p>
+              <a href="#blog-article-2" onclick="showBlogArticle('blog-article-2')" class="read-more">Pročitaj više <i class="fas fa-arrow-right"></i></a>
+            </div>
+          </div>
+
+          <div class="blog-post">
+            <div class="blog-post-image">
+              <img src="kopriva.jpg" alt="Ušteda energije">
+            </div>
+            <div class="blog-post-content">
+              <div class="blog-post-date">
+                <i class="far fa-calendar-alt"></i> 10. April 2023
+              </div>
+              <h3 class="blog-post-title">Kako uštedeti energiju i vodu prilikom pranja veša</h3>
+              <p class="blog-post-excerpt">Praktični saveti kako smanjiti potrošnju energije i vode prilikom pranja veša bez žrtvovanja čistoće...</p>
+              <a href="#blog-article-3" onclick="showBlogArticle('blog-article-3')" class="read-more">Pročitaj više <i class="fas fa-arrow-right"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Blog članci - skriveni dok se ne otvore -->
+    <div id="blog-article-1" class="blog-article" style="display: none;">
+      <img src="kopriva.jpg" alt="Kako pravilno prati veš" class="blog-article-image">
+      <h1 class="blog-article-title">Kako pravilno prati veš da bi trajao duže</h1>
+      <div class="blog-article-meta">
+        <span><i class="far fa-calendar-alt"></i> 15. Jun 2023</span>
+        <span><i class="far fa-clock"></i> 5 min čitanja</span>
+      </div>
+      <div class="blog-article-content">
+        <p>Pravilno pranje veša može značajno produžiti životni vek vaše odeće i uštedeti vam novac. Evo nekoliko ključnih saveta kako to postići:</p>
+
+        <h2>1. Sortiranje veša</h2>
+        <p>Pre pranja, veš treba sortirati prema boji, vrsti tkanine i stepenu prljanja. Razdvajajte belo, obojeno i tamno veš. Delikatne tkanine kao što su svila i vuna treba prati odvojeno.</p>
+
+        <h2>2. Temperatura vode</h2>
+        <p>Za beli veš koristite toplu vodu (40-60°C), dok obojeni veš treba prati na 30°C. Hladna voda je idealna za tamne boje i delikatne tkanine.</p>
+
+        <h2>3. Količina deterdženta</h2>
+        <p>Koristite preporučenu količinu deterdženta. Previše deterdženta može ostaviti ostatke na vešu i oštetiti mašinu, dok premalo neće dobro oprati veš.</p>
+
+        <h2>4. Peglanje i sušenje</h2>
+        <p>Izbegavajte sušilicu kada je to moguće, jer toplota može oštetiti tkanine. Umesto toga, veš sušite na vazduhu. Peglajte na temperaturi koja odgovara vrsti tkanine.</p>
+
+        <p>Pametnim pranjem možete produžiti životni vek svoje odeće za 30-50%, što vam donosi značajne uštede tokom godine.</p>
+      </div>
+      <a href="#blog" onclick="showSection('blog')" class="back-to-blog"><i class="fas fa-arrow-left"></i> Nazad na blog</a>
+    </div>
+
+    <div id="blog-article-2" class="blog-article" style="display: none;">
+      <img src="kopriva.jpg" alt="Ekološki proizvodi" class="blog-article-image">
+      <h1 class="blog-article-title">Zašto koristiti ekološki prihvatljive proizvode za čišćenje</h1>
+      <div class="blog-article-meta">
+        <span><i class="far fa-calendar-alt"></i> 2. Maj 2023</span>
+        <span><i class="far fa-clock"></i> 6 min čitanja</span>
+      </div>
+      <div class="blog-article-content">
+        <p>Ekološki prihvatljivi proizvodi za čišćenje postaju sve popularniji, i to sa dobrim razlogom. Evo zašto biste trebali razmisliti o prelasku na "zelene" proizvode:</p>
+
+        <h2>1. Bezbednost po zdravlje</h2>
+        <p>Konvencionalni proizvodi za čišćenje često sadrže hemikalije koje mogu izazvati iritaciju kože, očiju i disajnih puteva. Ekološki proizvodi koriste prirodne sastojke koji su bezbedniji za vas i vašu porodicu.</p>
+
+        <h2>2. Manje zagađenje</h2>
+        <p>Kada isperete hemikalije iz konvencionalnih proizvoda, one završe u vodovodnom sistemu i na kraju u prirodi. Ekološki proizvodi se brže razgrađuju i manje zagađuju životnu sredinu.</p>
+
+        <h2>3. Delotvornost</h2>
+        <p>Mnogi veruju da ekološki proizvodi nisu tako efikasni, ali moderni zeleni proizvodi koriste napredne prirodne formule koje su jednako efektivne kao i konvencionalni proizvodi.</p>
+
+        <h2>4. Dugoročne uštede</h2>
+        <p>Iako su ekološki proizvodi ponekad nešto skuplji, dugoročno mogu doneti uštede smanjenjem zdravstvenih problema i očuvanjem kvaliteta vaših predmeta koje čistite.</p>
+
+        <p>Prebacivanjem na ekološke proizvode za čišćenje, ne samo što brinete o sebi i svojoj porodici, već doprinosite i očuvanju životne sredine za buduće generacije.</p>
+      </div>
+      <a href="#blog" onclick="showSection('blog')" class="back-to-blog"><i class="fas fa-arrow-left"></i> Nazad na blog</a>
+    </div>
+
+    <div id="blog-article-3" class="blog-article" style="display: none;">
+      <img src="kopriva.jpg" alt="Ušteda energije" class="blog-article-image">
+      <h1 class="blog-article-title">Kako uštedeti energiju i vodu prilikom pranja veša</h1>
+      <div class="blog-article-meta">
+        <span><i class="far fa-calendar-alt"></i> 10. April 2023</span>
+        <span><i class="far fa-clock"></i> 4 min čitanja</span>
+      </div>
+      <div class="blog-article-content">
+        <p>Pranje veša može biti energetski i vodo zahtevna aktivnost, ali uz nekoliko jednostavnih trikova možete značajno smanjiti potrošnju. Evo kako:</p>
+
+        <h2>1. Koristite pun kapacitet mašine</h2>
+        <p>Uvek pokušajte da napunite mašinu do preporučenog kapaciteta. Pranje poluprazne mašine troši istu količinu energije i vode kao i puna mašina.</p>
+
+        <h2>2. Niža temperatura</h2>
+        <p>Pranje na 30°C umesto na 40°C može smanjiti potrošnju energije za 40%. Za većinu pranja, niža temperatura je sasvim dovoljna.</p>
+
+        <h2>3. Eko programi</h2>
+        <p>Moderni veš mašini imaju eko programe koji koriste manje vode i energije, produžavajući vreme pranja kako bi postigli isti rezultat sa manje resursa.</p>
+
+        <h2>4. Redovno održavanje</h2>
+        <p>Čišćenje filtera i redovno odmašćivanje mašine može poboljšati njen rad i smanjiti potrošnju energije. Takođe, proveravajte creva za curenje.</p>
+
+        <h2>5. Prirodno sušenje</h2>
+        <p>Kada god je moguće, sušite veš na vazduhu umesto u sušilici. Ovo ne samo što štedi energiju već i produžava životni vek vaše odeće.</p>
+
+        <p>Primenom ovih saveta, prosječna porodica može uštedeti do 20.000 litara vode i 1000 kWh energije godišnje, što predstavlja značajnu uštedu novca i doprinos očuvanju životne sredine.</p>
+      </div>
+      <a href="#blog" onclick="showSection('blog')" class="back-to-blog"><i class="fas fa-arrow-left"></i> Nazad na blog</a>
+    </div>
+
+    <!-- Sekcija FAQ -->
+    <section id="faq" class="section">
+      <div class="section-title">
+        <h2>Često postavljana pitanja (FAQ)</h2>
+        <p>Pronađite odgovore na najčešća pitanja</p>
+      </div>
+
+      <div class="faq-container">
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Kako mogu da poručim proizvode?</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">
+            <p>Možete poručiti proizvode direktno preko našeg <strong>sajta</strong> dodavanjem u korpu i popunjavanjem forme za porudžbinu. <br>Takođe nas možete kontaktirati   <strong>telefonom</strong> ili <strong>lično posetiti našu prodavnicu.</strong></p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Koje su opcije plaćanja?</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">
+            <p>Trenutno postoji samo jedna opcija, <strong> plaćanje pouzećem. </strong></p>
+            <br>
+            <p>Uskoro ćemo dodati opciju onlajn plaćanja. </p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Da li isporučujete proizvode van grada?</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">
+            <p><strong> Da</strong>, vršimo isporuku širom Srbije. Troškovi dostave variraju u zavisnosti od lokacije i veličine paketa. Kontaktirajte nas za tačnu cenu dostave za vašu lokaciju.
+            </p>
+            <br>
+            <p>Narudžbine na lokaciji Zaječara su <strong>besplatne. </strong> 
+            </p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Koliko traje isporuka?</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">
+            <p>Isporuka može trajati <strong> 2-3 radna dana</strong>, u zavisnosti od lokacije.</p>
+            <br>
+            <p>Porudžbine na lokaciji Zaječara se isporučuju u roku od <strong>1-2 sata od trenutka poručivanja.</strong> </p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Da li nudite garanciju na proizvode?</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">
+            <p>Svi naši proizvodi su originalno pakovani i imaju rok trajanja. U slučaju bilo kakvih problema sa proizvodima, možete nas kontaktirati za reklamaciju u roku od    <strong>7 dana od kupovine.</strong></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sekcija O nama -->
+    <section id="onama" class="section">
+      <div class="section-title">
+        <h2>O NAMA</h2>
+        <p style="font-size: 1.2rem; font-weight: 500; letter-spacing: 1px;">NAŠA PRIČA I KONTAKT INFORMACIJE</p>
+      </div>
+
+      <div style="max-width: 800px; margin: 0 auto; padding: 2.5rem; background-color: white; border-radius: 8px; box-shadow: var(--shadow);">
+        <h3 style="color: var(--secondary); margin-bottom: 1.5rem; font-size: 1.5rem; text-transform: uppercase;">KO SMO MI?</h3>
+        <p style="margin-bottom: 2rem; font-size: 1.1rem; line-height: 1.7;">
+          <strong style="font-size: 1.2rem;">Kućna Hemija Kopriva</strong> je porodična firma osnovana <strong>2005. godine</strong> sa ciljem da našim kupcima pruži kvalitetne proizvode za kućnu hemiju po pristupačnim cenama.
+        </p>
+
+        <h3 style="color: var(--secondary); margin-bottom: 1.5rem; font-size: 1.5rem; text-transform: uppercase;">NAŠA MISIJA</h3>
+        <p style="margin-bottom: 2rem; font-size: 1.1rem; line-height: 1.7;">
+          Želimo da vam olakšamo održavanje čistoće vašeg doma kroz <strong>pažljivo odabrane proizvode</strong> koji su bezbedni za vas i vašu porodicu.
+        </p>
+
+        <h3 style="color: var(--secondary); margin-bottom: 1.5rem; font-size: 1.5rem; text-transform: uppercase;">KONTAKT</h3>
+        <div style="font-size: 1.1rem;">
+          <p style="margin-bottom: 1rem;"><i class="fas fa-map-marker-alt" style="margin-right: 10px;"></i> <strong>Adresa:</strong> Example ulica bb, Example grad</p>
+          <p style="margin-bottom: 1rem;"><i class="fas fa-phone" style="margin-right: 10px;"></i> <strong>Telefon:</strong> 012 345 678</p>
+          <p><i class="fas fa-envelope" style="margin-right: 10px;"></i> <strong>Email:</strong> info@kucnahemijakopriva.rs</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>Kućna Hemija Kopriva</h3>
+        <p>Vaš pouzdan partner za čistoću i negu doma. Kvalitetni proizvodi po pristupačnim cenama.</p>
+        <div class="social-media">
+          <a href="https://www.facebook.com" target="_blank" class="facebook"><i class="fab fa-facebook"></i></a>
+          <a href="https://www.instagram.com" target="_blank" class="instagram"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+
+<div class="footer-section">
+  <h3>Lokacija</h3>
+  <div class="map-container" style="margin-bottom: 15px;">
+    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3604.7225803469123!2d22.280040099999997!3d43.9015262!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x475473f79fa773db%3A0xce2a0b5e38e163f1!2zS3XEh25hIGhlbWlqYSAsLEtPUFJJVkEgTlMsLA!5e1!3m2!1ssr!2srs!4v1752535198971!5m2!1ssr!2srs" 
+      width="120%" 
+      height="250" 
+      style="border:0;" 
+      allowfullscreen="" 
+      loading="lazy" 
+      referrerpolicy="no-referrer-when-downgrade">
+    </iframe>
+  </div>
+  <p><i class="fas fa-map-marker-alt"></i> Example ulica bb, Zaječar</p>
+  <p><i class="fas fa-clock"></i> Radno vreme: 08-20h</p>
+  <p><i class="fas fa-phone"></i> Telefon: 012 345 678</p>
+  <p><i class="fas fa-envelope"></i> Email: info@kucnahemijakopriva.rs</p>
+</div>
+
+      <div class="footer-section">
+        <h3>Brzi linkovi</h3>
+        <ul class="footer-links">
+          <li><a href="#glavna" onclick="showSection('glavna')"><i class="fas fa-chevron-right"></i> Početna</a></li>
+          <li><a href="#katalog" onclick="showSection('katalog')"><i class="fas fa-chevron-right"></i> Katalog</a></li>
+          <li><a href="#blog" onclick="showSection('blog')"><i class="fas fa-chevron-right"></i> Blog</a></li>
+          <li><a href="#faq" onclick="showSection('faq')"><i class="fas fa-chevron-right"></i> FAQ</a></li>
+          <li><a href="#onama" onclick="showSection('onama')"><i class="fas fa-chevron-right"></i> O nama</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="copyright">
+      <p>&copy; 2023 Kućna Hemija Kopriva. Sva prava zadržana.</p>
+    </div>
+  </footer>
+
+  <!-- Modal za detalje proizvoda -->
+  <div class="product-modal" id="productModal">
+    <div class="product-modal-content">
+      <span class="product-modal-close" onclick="closeProductModal()">&times;</span>
+      <img src="" alt="" class="product-modal-image" id="modal-product-image">
+      <div class="product-modal-info">
+        <h2 id="modal-product-name"></h2>
+        <div class="product-modal-price" id="modal-product-price"></div>
+        <p class="product-modal-description" id="modal-product-description"></p>
+        <div id="modal-product-availability" class="product-availability"></div>
+
+        <div class="product-details">
+          <h4>Detalji o proizvodu</h4>
+          <ul id="product-details-list">
+            <!-- Detalji će biti dinamički dodati ovde -->
+          </ul>
+        </div>
+
+        <button class="add-to-cart" onclick="addCurrentProductToCart()">
+          <i class="fas fa-cart-plus"></i> Dodaj u korpu
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal za korpu -->
+  <div class="modal" id="cartModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeCartModal()">&times;</span>
+      <h2>Vaša korpa</h2>
+
+      <div class="cart-items" id="cart-items-container">
+        <div class="cart-empty">
+          <i class="fas fa-shopping-cart"></i>
+          <p>Vaša korpa je prazna</p>
+        </div>
+      </div>
+
+      <div id="cart-total" style="display: none;">
+        <div class="cart-total">
+          Ukupno: <span id="total-amount">0</span> RSD
+        </div>
+
+        <form id="order-form" class="order-form">
+          <h3>Podaci za dostavu</h3>
+
+          <div class="form-group">
+            <label for="order-name">Ime i prezime *</label>
+            <input type="text" id="order-name" placeholder="Ime i prezime" required>
+            <div class="error-message" id="name-error">Ime mora imati najmanje 6 karaktera</div>
+          </div>
+
+          <div class="form-group">
+            <label for="order-phone">Telefon *</label>
+            <input type="tel" id="order-phone" placeholder="Telefon" required>
+            <div class="error-message" id="phone-error">Telefon mora imati više od 8 brojeva</div>
+          </div>
+
+          <div class="form-group">
+            <label for="order-address">Adresa stanovanja *</label>
+            <input type="text" id="order-address" placeholder="Ulica i broj" required>
+            <div class="error-message" id="address-error">Adresa mora imati najmanje 7 karaktera</div>
+          </div>
+
+          <div class="form-group">
+            <label for="order-city">Grad *</label>
+            <input type="text" id="order-city" placeholder="Grad" required>
+            <div class="error-message" id="city-error">Grad mora imati najmanje 3 karaktera</div>
+          </div>
+
+          <div class="form-group">
+            <label for="order-zip">Poštanski broj *</label>
+            <input type="text" id="order-zip" placeholder="Poštanski broj" required>
+            <div class="error-message" id="zip-error">Poštanski broj mora imati više od 4 broja</div>
+          </div>
+
+          <div class="form-group">
+            <label for="order-email">Email</label>
+            <input type="email" id="order-email" placeholder="Email (opciono)">
+          </div>
+
+          <div class="form-group">
+            <label for="order-note">Napomena</label>
+            <input type="text" id="order-note" placeholder="Napomena (opciono)">
+          </div>
+
+          <button type="button" class="submit-btn" onclick="submitOrder()">Pošalji narudžbinu</button>
+          <p class="order-confirmation-note">Napomena: Možemo Vas kontaktirati telefonom radi potvrde porudžbine.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Thank you message with fireworks -->
+  <div class="thank-you-overlay" id="thankYouOverlay">
+    <div class="thank-you-message">
+      <h2>Hvala na porudžbini!</h2>
+      <p>Vaša porudžbina je uspešno primljena. Kontaktiraćemo Vas u najkraćem mogućem roku radi potvrde.</p>
+      <button class="btn" onclick="closeThankYouMessage()">Nastavite kupovinu</button>
+
+    </div>
+  </div>
+
+  <!-- Promocioni baner -->
+  <div class="promo-banner" id="promoBanner">
+    <button class="promo-banner-close" onclick="closePromoBanner()">&times;</button>
+    <div class="promo-banner-content">
+      <img src="pro_v_1358264.jpg" alt="Specijalna ponuda" class="promo-banner-image">
+      <div class="promo-banner-text">
+        <h3>Specijalna ponuda za nove kupce!</h3>
+        <p>Dobijte 10% popusta na prvu narudžbinu. Iskoristite ovu priliku dok traje akcija!</p>
+        <a href="#katalog" class="promo-banner-btn" onclick="showSection('katalog'); closePromoBanner();">Pogledajte ponudu</a>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Dugme za povratak na vrh -->
+  <button id="backToTop" title="Idi na vrh"><i class="fas fa-arrow-up"></i></button>
+
+<script>
+    // Inicijalizacija EmailJS
+    emailjs.init('cTpLZ9yJhO-yUYPsA');
+
+    // Proizvodi u katalogu
+    let products = []; // Prazan niz koji će se popuniti iz JSON fajla
+
+    // Paginacija
+    let currentPage = 1;
+    const productsPerPage = 15; // Broj proizvoda po strani
+    let cart = [];
+
+    // Funkcija za učitavanje proizvoda iz JSON fajla
+    async function loadProducts() {
+        try {
+            const response = await fetch('products.json');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            products = await response.json();
+            console.log('Proizvodi uspešno učitani:', products);
+            
+            // Ako smo na katalog stranici, prikaži proizvode
+            if (window.location.hash === '#katalog') {
+                displayProducts();
+            }
+        } catch (error) {
+            console.error('Greška pri učitavanju proizvoda:', error);
+            // Fallback na neke osnovne proizvode
+            products = [
+                {
+                    id: 1,
+                    name: "Deterdžent za veš Limun",
+                    description: "Tečni deterđent sa osvežavajućim mirisom limuna, za sve vrste veša. Persil DEEBICLEAN formula pruža izuzetno dubinsko čišćenje i briljantan miris. Pogodan za belo i obojeno veš. Sadrži prirodne komponente koje su bezbedne za kožu i okolinu.",
+                    price: "520.00",
+                    volume: "2.5L",
+                    image: "pro_v_1358264.jpg",
+                    available: true,
+                    category: "tecnosti",
+                    packageDetails: {
+                        "Brend": "Semana",
+                        "Zapremina": "2.5L",
+                        "Težina": "2.8kg",
+                        "Rok upotrebe": "36 meseci",
+                        "Način upotrebe": "Koristiti prema uputstvu na pakovanju"
+                    }
+                },
+                {
+                    id: 2,
+                    name: "Deterdžent za veš Lavanda",
+                    description: "Tečni deterđent sa mirisom lavande, nježan za kožu. Persil DEEBICLEAN tehnologija garantuje izuzetno čišćenje uz blagotvorno delovanje na osetljivu kožu. Ne sadrži agresivne hemikalije i boje. Preporučuje se za bebe i osobe sa osetljivom kožom.",
+                    price: "550.00",
+                    volume: "2.5L",
+                    image: "pro_v_1358264.jpg",
+                    available: true,
+                    category: "tecnosti",
+                    packageDetails: {
+                        "Brend": "Semana",
+                        "Zapremina": "2.5L",
+                        "Težina": "2.8kg",
+                        "Rok upotrebe": "36 meseci",
+                        "Način upotrebe": "Koristiti prema uputstvu na pakovanju"
+                    }
+                }
+            ];
+            if (window.location.hash === '#katalog') {
+                displayProducts();
+            }
+        }
+    }
+
+    // Save cart to localStorage
+    function saveCartToStorage() {
+        localStorage.setItem('shoppingCart', JSON.stringify(cart));
+    }
+
+    // Load cart from localStorage
+    function loadCartFromStorage() {
+        const savedCart = localStorage.getItem('shoppingCart');
+        if (savedCart) {
+            cart = JSON.parse(savedCart);
+            updateCart();
+        }
+    }
+
+    let currentFilter = 'all';
+    let currentSort = 'default';
+    let currentProduct = null;
+
+    // Funkcija za prikaz modalnog prozora sa detaljima proizvoda
+    function openProductModal(productId) {
+        const product = products.find(p => p.id === productId);
+        if (!product) return;
+
+        currentProduct = product;
+        
+        document.getElementById('modal-product-name').textContent = product.name;
+        document.getElementById('modal-product-price').textContent = `${product.price} RSD`;
+        document.getElementById('modal-product-description').textContent = product.description;
+        document.getElementById('modal-product-image').src = product.image;
+        
+        const availabilityElement = document.getElementById('modal-product-availability');
+        availabilityElement.innerHTML = `
+            <i class="fas ${product.available ? 'fa-check-circle in-stock' : 'fa-times-circle out-of-stock'}"></i>
+            ${product.available ? 'Na stanju' : 'Nema na stanju'}
+        `;
+        
+        const detailsList = document.getElementById('product-details-list');
+        detailsList.innerHTML = '';
+        
+        for (const [key, value] of Object.entries(product.packageDetails)) {
+            const li = document.createElement('li');
+            li.innerHTML = `<span>${key}:</span> <span>${value}</span>`;
+            detailsList.appendChild(li);
+        }
+        
+        document.getElementById('productModal').style.display = 'flex';
+    }
+
+    // Funkcija za zatvaranje modalnog prozora sa detaljima proizvoda
+    function closeProductModal() {
+        document.getElementById('productModal').style.display = 'none';
+        currentProduct = null;
+    }
+
+    // Funkcija za dodavanje trenutno prikazanog proizvoda u korpu
+    function addCurrentProductToCart() {
+        if (currentProduct) {
+            addToCart(currentProduct.id);
+        }
+    }
+
+    // Funkcija za dodavanje proizvoda u korpu
+    function addToCart(productId) {
+        const product = products.find(p => p.id === productId);
+        if (!product || !product.available) return;
+
+        const existingItem = cart.find(item => item.id === productId);
+        
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({
+                id: product.id,
+                name: product.name,
+                price: parseFloat(product.price),
+                image: product.image,
+                quantity: 1
+            });
+        }
+        
+        updateCart();
+        showNotification(`${product.name} je dodat u korpu`);
+    }
+
+    // Funkcija za dodavanje kombo paketa u korpu
+    function addComboToCart() {
+        // Dodajemo sve proizvode iz kombo paketa
+        addToCart(1); // Deterdžent za veš Limun
+        addToCart(3); // Prasak za veš Classic
+        addToCart(4); // Omeksivač veša Cvetni miris
+        
+        showNotification("Kombi paket je dodat u korpu");
+    }
+
+    // Funkcija za ažuriranje prikaza korpe
+    function updateCart() {
+        const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+        document.getElementById('cart-count').textContent = cartCount;
+        
+        const cartItemsContainer = document.getElementById('cart-items-container');
+        const cartTotalContainer = document.getElementById('cart-total');
+        
+        if (cart.length === 0) {
+            cartItemsContainer.innerHTML = `
+                <div class="cart-empty">
+                    <i class="fas fa-shopping-cart"></i>
+                    <p>Vaša korpa je prazna</p>
+                </div>
+            `;
+            cartTotalContainer.style.display = 'none';
+            saveCartToStorage();
+            return;
+        }
+        
+        cartItemsContainer.innerHTML = '';
+        let total = 0;
+        
+        cart.forEach(item => {
+            const itemTotal = item.price * item.quantity;
+            total += itemTotal;
+            
+            const cartItem = document.createElement('div');
+            cartItem.className = 'cart-item';
+            cartItem.innerHTML = `
+                <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+                <div class="cart-item-info">
+                    <div class="cart-item-name">${item.name}</div>
+                    <div class="cart-item-price">${item.price.toFixed(2)} RSD</div>
+                    <div class="cart-item-quantity">
+                        <button onclick="updateCartItemQuantity(${item.id}, -1)">-</button>
+                        <input type="number" value="${item.quantity}" min="1" onchange="updateCartItemQuantity(${item.id}, 0, this.value)">
+                        <button onclick="updateCartItemQuantity(${item.id}, 1)">+</button>
+                    </div>
+                </div>
+                <div class="cart-item-remove" onclick="removeFromCart(${item.id})">
+                    <i class="fas fa-trash"></i>
+                </div>
+            `;
+            
+            cartItemsContainer.appendChild(cartItem);
+        });
+        
+        document.getElementById('total-amount').textContent = total.toFixed(2);
+        cartTotalContainer.style.display = 'block';
+        saveCartToStorage();
+    }
+
+    // Funkcija za ažuriranje količine proizvoda u korpi
+    function updateCartItemQuantity(productId, change, newValue = null) {
+        const item = cart.find(item => item.id === productId);
+        if (!item) return;
+        
+        if (newValue !== null) {
+            const quantity = parseInt(newValue);
+            if (quantity > 0) {
+                item.quantity = quantity;
+            }
+        } else {
+            item.quantity += change;
+            if (item.quantity < 1) {
+                item.quantity = 1;
+            }
+        }
+        
+        updateCart();
+    }
+
+    // Funkcija za uklanjanje proizvoda iz korpe
+    function removeFromCart(productId) {
+        cart = cart.filter(item => item.id !== productId);
+        updateCart();
+        showNotification("Proizvod je uklonjen iz korpe");
+    }
+
+    // Funkcija za otvaranje korpe
+    function openCartModal() {
+        document.getElementById('cartModal').style.display = 'flex';
+        document.body.classList.add('cart-open');
+    }
+
+    // Funkcija za zatvaranje korpe
+    function closeCartModal() {
+        document.getElementById('cartModal').style.display = 'none';
+        document.body.classList.remove('cart-open');
+    }
+
+    // Funkcija za prikaz notifikacije
+    function showNotification(message) {
+        const notificationContainer = document.getElementById('notification-container') || createNotificationContainer();
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.textContent = message;
+        
+        notificationContainer.appendChild(notification);
+        
+        // Animacija pojavljivanja
+        setTimeout(() => {
+            notification.style.opacity = '1';
+            notification.style.transform = 'translateY(0)';
+        }, 10);
+        
+        // Automatsko uklanjanje nakon 3 sekunde
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateY(-20px)';
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 3000);
+    }
+
+    // Kreirajte poseban kontejner za notifikacije ako ne postoji
+    function createNotificationContainer() {
+        const container = document.createElement('div');
+        container.id = 'notification-container';
+        container.style.position = 'fixed';
+        container.style.top = '80px';
+        container.style.right = '20px';
+        container.style.zIndex = '1000';
+        container.style.display = 'flex';
+        container.style.flexDirection = 'column';
+        container.style.gap = '10px';
+        document.body.appendChild(container);
+        return container;
+    }
+
+    function submitOrder() {
+        // Validacija formulara
+        const name = document.getElementById('order-name').value;
+        const phone = document.getElementById('order-phone').value;
+        const address = document.getElementById('order-address').value;
+        const city = document.getElementById('order-city').value;
+        const zip = document.getElementById('order-zip').value;
+        const email = document.getElementById('order-email').value;
+        const note = document.getElementById('order-note').value;
+        
+        let isValid = true;
+        
+        if (name.length < 6) {
+            document.getElementById('name-error').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('name-error').style.display = 'none';
+        }
+        
+        if (phone.length < 8) {
+            document.getElementById('phone-error').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('phone-error').style.display = 'none';
+        }
+        
+        if (address.length < 7) {
+            document.getElementById('address-error').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('address-error').style.display = 'none';
+        }
+        
+        if (city.length < 3) {
+            document.getElementById('city-error').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('city-error').style.display = 'none';
+        }
+        
+        if (zip.length < 4) {
+            document.getElementById('zip-error').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('zip-error').style.display = 'none';
+        }
+        
+        if (!isValid) return;
+        
+        // Priprema podataka za slanje
+        const orderData = {
+            name,
+            phone,
+            address,
+            city,
+            zip,
+            email,
+            note,
+            items: cart.map(item => ({
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                total: (item.price * item.quantity).toFixed(2)
+            })),
+            total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2),
+            date: new Date().toLocaleString()
+        };
+        
+        // Slanje emaila preko EmailJS
+        emailjs.send('service_i5t5tvd', 'template_vb5wv1i', orderData)
+            .then(() => {
+                cart = [];
+                updateCart();
+                closeCartModal();
+                showThankYouMessage(); // Prikaz thank-you poruke sa vatrometom
+            }, (error) => {
+                showNotification("Došlo je do greške prilikom slanja porudžbine. Molimo pokušajte ponovo.");
+                console.error('EmailJS Error:', error);
+            });
+    }
+
+    // Funkcija za prikaz promocionog banera
+    function showPromoBanner() {
+        setTimeout(() => {
+            const promoBanner = document.getElementById('promoBanner');
+            if (!localStorage.getItem('promoBannerClosed')) {
+                promoBanner.style.display = 'block';
+            }
+        }, 5000);
+    }
+
+    // Funkcija za zatvaranje promocionog banera
+    function closePromoBanner() {
+        document.getElementById('promoBanner').style.display = 'none';
+        localStorage.setItem('promoBannerClosed', 'true');
+    }
+
+    // Funkcije za prikaz sekcija
+    function showSection(sectionId) {
+        document.querySelectorAll('.section').forEach(section => {
+            section.style.display = 'none';
+        });
+
+        // Sakrij sve blog članke
+        document.querySelectorAll('.blog-article').forEach(article => {
+            article.style.display = 'none';
+        });
+
+        const sectionElement = document.getElementById(sectionId);
+        sectionElement.style.display = 'block';
+        sectionElement.style.animation = 'fadeIn 0.5s ease-out';
+
+        if (sectionId === 'katalog') {
+            document.body.classList.add('katalog-page');
+            displayProducts();
+        } else {
+            document.body.classList.remove('katalog-page');
+        }
+
+        const searchContainer = document.querySelector('.search-container');
+        const catalogSearch = document.getElementById('catalog-search');
+
+        if (sectionId === 'katalog') {
+            searchContainer.style.display = 'none';
+            catalogSearch.classList.add('active');
+        } else {
+            searchContainer.style.display = 'none';
+            catalogSearch.classList.remove('active');
+        }
+
+        history.pushState(null, null, `#${sectionId}`);
+
+        if (sectionId !== 'katalog') {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    }
+
+    // Funkcija za prikaz blog članka
+    function showBlogArticle(articleId) {
+        document.querySelectorAll('.section').forEach(section => {
+            section.style.display = 'none';
+        });
+
+        document.querySelectorAll('.blog-article').forEach(article => {
+            article.style.display = 'none';
+        });
+
+        const article = document.getElementById(articleId);
+        if (article) {
+            article.style.display = 'block';
+            article.style.animation = 'fadeIn 0.5s ease-out';
+            history.pushState(null, null, `#${articleId}`);
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    }
+
+    // Funkcija za toggle FAQ pitanja
+    function toggleFaq(element) {
+        const faqItem = element.parentElement;
+        faqItem.classList.toggle('active');
+    }
+
+    // Pretraga proizvoda u katalogu
+    function searchCatalogProducts() {
+        currentPage = 1;
+        displayProducts();
+    }
+
+    // Filter proizvoda
+    function filterProducts(category, event) {
+        event.preventDefault();
+        currentFilter = category;
+        currentPage = 1;
+        document.getElementById('catalog-search-input').value = '';
+        displayProducts();
+        document.querySelectorAll('.filter-options a').forEach(link => {
+            link.classList.remove('active');
+        });
+        event.target.classList.add('active');
+    }
+
+    // Sortiranje proizvoda
+    function sortProducts() {
+        const sortSelect = document.getElementById('sort-products');
+        currentSort = sortSelect.value;
+        currentPage = 1;
+        displayProducts();
+    }
+
+    // Sortiranje liste proizvoda
+    function sortProductList(productList) {
+        switch (currentSort) {
+            case 'price-asc':
+                return [...productList].sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+            case 'price-desc':
+                return [...productList].sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+            case 'name-asc':
+                return [...productList].sort((a, b) => a.name.localeCompare(b.name));
+            case 'name-desc':
+                return [...productList].sort((a, b) => b.name.localeCompare(a.name));
+            default:
+                return productList;
+        }
+    }
+
+    // Renderovanje proizvoda
+    function renderProducts(productsToRender) {
+        const container = document.getElementById('products-container');
+        container.innerHTML = '';
+
+        if (productsToRender.length === 0) {
+            container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; animation: fadeIn 0.5s ease-out;">Nema proizvoda koji odgovaraju vašoj pretrazi</p>';
+            return;
+        }
+
+        productsToRender.forEach((product, index) => {
+            const productCard = document.createElement('div');
+            productCard.className = 'product-card';
+            productCard.style.animation = `fadeIn 0.5s ease-out ${index * 0.1}s forwards`;
+            productCard.style.opacity = '0';
+
+            let buttonHTML;
+            if (product.available) {
+                buttonHTML = `<button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id})">
+                            <i class="fas fa-cart-plus"></i> Dodaj u korpu
+                        </button>`;
+            } else {
+                buttonHTML = `<div class="out-of-stock-tooltip">
+                            <button class="add-to-cart" onclick="event.stopPropagation()" disabled style="opacity: 0.6; cursor: not-allowed;">
+                                <i class="fas fa-times-circle"></i> Nema na stanju
+                            </button>
+                            <span class="tooltiptext">Pozovite nas za proveru stanja</span>
+                        </div>`;
+            }
+
+            productCard.innerHTML = `
+                <div class="product-image-container" onclick="openProductModal(${product.id})">
+                    <img src="${product.image}" alt="${product.name}" class="product-image">
+                </div>
+                <div class="product-info">
+                    <div class="product-text-content">
+                        <h3 onclick="openProductModal(${product.id})" style="cursor: pointer;">${product.name}</h3>
+                        <p>${product.description}</p>
+                    </div>
+                    <div class="product-details">
+                        <div class="product-availability">
+                            <i class="fas ${product.available ? 'fa-check-circle in-stock' : 'fa-times-circle out-of-stock'}"></i>
+                            ${product.available ? 'Na stanju' : 'Nema na stanju'}
+                        </div>
+                        <div class="product-price">${product.price} RSD</div>
+                        <div class="product-volume">
+                            <i class="fas fa-weight-hanging"></i> ${product.volume}
+                        </div>
+                    </div>
+                    <div class="product-actions">
+                        ${buttonHTML}
+                    </div>
+                </div>
+            `;
+            container.appendChild(productCard);
+        });
+    }
+
+    // Funkcija za renderovanje paginacije
+    function renderPagination(totalProducts) {
+        const totalPages = Math.ceil(totalProducts / productsPerPage);
+        const paginationContainer = document.getElementById('pagination');
+        const paginationList = paginationContainer.querySelector('.pagination-list');
+        
+        // Očistimo postojeće brojeve stranica (ostavljamo strelice)
+        while (paginationList.children.length > 2) {
+            paginationList.removeChild(paginationList.children[1]);
+        }
+        
+        // Dodajemo brojeve stranica
+        const maxVisiblePages = 5;
+        let startPage, endPage;
+        
+        if (totalPages <= maxVisiblePages) {
+            startPage = 1;
+            endPage = totalPages;
+        } else {
+            const maxPagesBeforeCurrent = Math.floor(maxVisiblePages / 2);
+            const maxPagesAfterCurrent = Math.ceil(maxVisiblePages / 2) - 1;
+            
+            if (currentPage <= maxPagesBeforeCurrent) {
+                startPage = 1;
+                endPage = maxVisiblePages;
+            } else if (currentPage + maxPagesAfterCurrent >= totalPages) {
+                startPage = totalPages - maxVisiblePages + 1;
+                endPage = totalPages;
+            } else {
+                startPage = currentPage - maxPagesBeforeCurrent;
+                endPage = currentPage + maxPagesAfterCurrent;
+            }
+        }
+        
+        // Add first page and ellipsis if needed
+        if (startPage > 1) {
+            const li = document.createElement('li');
+            li.className = 'pagination-item';
+            li.innerHTML = `<a href="#" class="pagination-link" onclick="goToPage(1)">1</a>`;
+            paginationList.insertBefore(li, paginationList.children[1]);
+            
+            if (startPage > 2) {
+                const dotsLi = document.createElement('li');
+                dotsLi.className = 'pagination-item';
+                dotsLi.innerHTML = `<span class="pagination-dots">...</span>`;
+                paginationList.insertBefore(dotsLi, paginationList.children[2]);
+            }
+        }
+        
+        // Add page numbers
+        for (let i = startPage; i <= endPage; i++) {
+            const li = document.createElement('li');
+            li.className = 'pagination-item';
+            li.innerHTML = `
+                <a href="#" class="pagination-link ${i === currentPage ? 'active' : ''}" 
+                   onclick="goToPage(${i})">${i}</a>
+            `;
+            paginationList.insertBefore(li, paginationList.lastChild);
+        }
+        
+        // Add last page and ellipsis if needed
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                const dotsLi = document.createElement('li');
+                dotsLi.className = 'pagination-item';
+                dotsLi.innerHTML = `<span class="pagination-dots">...</span>`;
+                paginationList.insertBefore(dotsLi, paginationList.lastChild);
+            }
+            
+            const li = document.createElement('li');
+            li.className = 'pagination-item';
+            li.innerHTML = `<a href="#" class="pagination-link" onclick="goToPage(${totalPages})">${totalPages}</a>`;
+            paginationList.insertBefore(li, paginationList.lastChild);
+        }
+        
+        // Ažuriramo stanje strelica
+        const prevPage = document.getElementById('prev-page');
+        const nextPage = document.getElementById('next-page');
+        
+        prevPage.classList.toggle('disabled', currentPage === 1);
+        nextPage.classList.toggle('disabled', currentPage === totalPages);
+        
+        // Osiguravamo da strelica ">" uvek ostane poslednji element
+        if (paginationList.lastChild !== nextPage.parentElement) {
+            paginationList.appendChild(nextPage.parentElement);
+        }
+    }
+
+    // Funkcija za promenu stranice
+    function changePage(direction) {
+        const totalPages = Math.ceil(getFilteredProducts().length / productsPerPage);
+        const newPage = currentPage + direction;
+        
+        if (newPage > 0 && newPage <= totalPages) {
+            currentPage = newPage;
+            displayProducts();
+            window.scrollTo({
+                top: document.getElementById('products-container').offsetTop - 100,
+                behavior: 'smooth'
+            });
+        }
+    }
+
+    // Funkcija za direktan skok na stranicu
+    function goToPage(page) {
+        currentPage = page;
+        displayProducts();
+        window.scrollTo({
+            top: document.getElementById('products-container').offsetTop - 100,
+            behavior: 'smooth'
+        });
+    }
+
+    // Funkcija za dobijanje filtriranih proizvoda
+    function getFilteredProducts() {
+        let filteredProducts = currentFilter === 'all' ? 
+            [...products] : 
+            products.filter(p => p.category === currentFilter);
+        
+        const searchTerm = document.getElementById('catalog-search-input').value.toLowerCase();
+        
+        if (searchTerm) {
+            filteredProducts = filteredProducts.filter(product =>
+                product.name.toLowerCase().includes(searchTerm) ||
+                product.description.toLowerCase().includes(searchTerm)
+            );
+        }
+        
+        return sortProductList(filteredProducts);
+    }
+
+    // Ažurirana funkcija za prikaz proizvoda
+    function displayProducts() {
+        const filteredProducts = getFilteredProducts();
+        const totalProducts = filteredProducts.length;
+        const startIndex = (currentPage - 1) * productsPerPage;
+        const paginatedProducts = filteredProducts.slice(startIndex, startIndex + productsPerPage);
+        
+        renderProducts(paginatedProducts);
+        renderPagination(totalProducts);
+    }
+
+    // Inicijalizacija
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCartFromStorage(); // Učitaj korpu iz localStorage
+        loadProducts(); // Učitaj proizvode iz JSON fajla
+        
+        const currentHash = window.location.hash.substring(1);
+        const validSections = ['glavna', 'katalog', 'blog', 'faq', 'onama'];
+        const blogArticles = ['blog-article-1', 'blog-article-2', 'blog-article-3'];
+
+        let defaultSection = 'glavna';
+
+        if (blogArticles.includes(currentHash)) {
+            showBlogArticle(currentHash);
+        }
+        else if (validSections.includes(currentHash)) {
+            showSection(currentHash);
+        } else {
+            showSection(defaultSection);
+        }
+
+        if (currentHash === 'katalog') {
+            displayProducts();
+        }
+
+        window.addEventListener("scroll", function() {
+            const btn = document.getElementById("backToTop");
+            if (window.scrollY > 300) {
+                btn.style.display = "block";
+            } else {
+                btn.style.display = "none";
+            }
+        });
+
+        document.getElementById("backToTop").addEventListener("click", function() {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        });
+
+        showPromoBanner();
+
+        document.querySelector('.newsletter-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('input').value;
+            showNotification("Hvala na pretplati! Poslali smo vam email sa potvrdom.");
+            this.reset();
+        });
+    });
+
+    // Zatvaranje modala klikom izvan sadržaja
+    window.onclick = function(event) {
+        if (event.target === document.getElementById('productModal')) {
+            closeProductModal();
+        }
+        if (event.target === document.getElementById('cartModal')) {
+            closeCartModal();
+        }
+    };
+
+    // Event listeneri za linkove
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener("click", function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute("href");
+
+                if (targetId === "#katalog") {
+                    const section = document.querySelector(targetId);
+                    if (section) {
+                        section.scrollIntoView({
+                            behavior: "smooth"
+                        });
+                    }
+                } else {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    });
+                    history.pushState(null, null, targetId);
+                }
+            });
+        });
+    });
+
+    // Funkcija za prikaz thank-you poruke sa vatrometom
+    function showThankYouMessage() {
+        const overlay = document.getElementById('thankYouOverlay');
+        overlay.style.display = 'flex';
+        
+        // Pokrećemo vatromet
+        startFireworks();
+    }
+
+    // Funkcija za zatvaranje thank-you poruke
+    function closeThankYouMessage() {
+        document.getElementById('thankYouOverlay').style.display = 'none';
+    }
+
+    // Funkcija za pokretanje vatrometa
+    function startFireworks() {
+        const overlay = document.getElementById('thankYouOverlay');
+        const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+        
+        // Kreiraj 50 vatrometa
+        for (let i = 0; i < 50; i++) {
+            setTimeout(() => {
+                const firework = document.createElement('div');
+                firework.className = 'firework';
+                
+                // Nasumična boja
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                firework.style.backgroundColor = color;
+                firework.style.boxShadow = `0 0 10px 5px ${color}`;
+                
+                // Nasumična početna pozicija
+                const startX = Math.random() * 100;
+                const startY = Math.random() * 100;
+                firework.style.left = `${startX}%`;
+                firework.style.top = `${startY}%`;
+                
+                // Nasumični pravac kretanja
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 50 + Math.random() * 100;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
+                firework.style.setProperty('--tx', `${tx}px`);
+                firework.style.setProperty('--ty', `${ty}px`);
+                
+                overlay.appendChild(firework);
+                
+                // Ukloni element nakon animacije
+                setTimeout(() => {
+                    firework.remove();
+                }, 1000);
+            }, i * 100);
+        }
+    }
+</script>
+</body>
+</html>
