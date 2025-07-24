@@ -2,7 +2,7 @@
   {
     "id": 1,
     "name": "Deterdžent za veš Limun",
-    "description": "Tečni deterđent sa osvežavajućim mirisom limuna...",
+    "description": "Tečni deterđent sa mirisom lavande, nježan za kožu. Persil DEEBICLEAN tehnologija garantuje izuzetno čišćenje uz blagotvorno delovanje na osetljivu kožu. Ne sadrži agresivne hemikalije i boje. Preporučuje se za bebe i osobe sa osetljivom kožom.",
     "price": 520.00,
     "volume": "2.5L",
     "image": "pro_v_1358264.jpg",
@@ -18,7 +18,7 @@
   {
     "id": 2,
     "name": "Sredstvo za sudove",
-    "description": "Ultra-aktivna formula...",
+    "description": "Ultra-aktivna formula za čišćenje svih vrsta posuđa. Ekološki prihvatljiva formula.",
     "price": 250.00,
     "volume": "1L",
     "image": "pro_v_1359000.jpg",
@@ -33,8 +33,8 @@
   },
   {
     "id": 3,
-    "name": "Sredstvo za stakla",
-    "description": "Specijalno sredstvo za beztrgno čišćenje stakala...",
+    "name": "Sredstvo za stakla Premium",
+    "description": "Specijalno sredstvo za beztrgno čišćenje stakala. Ne ostavlja fleke i mrlje.",
     "price": 255.00,
     "volume": "1L",
     "image": "pro_v_1359001.jpg",
@@ -49,18 +49,34 @@
   },
   {
     "id": 4,
-    "name": "Sredstvo za stakla",
-    "description": "Specijalno sredstvo za beztrgno čišćenje stakala...",
-    "price": 255.00,
-    "volume": "1L",
-    "image": "pro_v_1359001.jpg",
+    "name": "Sredstvo za stakla Travel",
+    "description": "Mini verzija sredstva za stakla, idealna za putovanja. Praktično pakovanje.",
+    "price": 180.00,
+    "volume": "0.5L",
+    "image": "pro_v_1359002.jpg",
     "available": true,
     "category": "stakla",
     "details": {
       "Brend": "Čistoća",
-      "Zapremina": "1L",
+      "Zapremina": "0.5L",
       "Rok upotrebe": "24 meseca",
       "Način upotrebe": "Direktno prskati na površinu"
+    }
+  },
+  {
+    "id": 5,
+    "name": "Univerzalni čistač",
+    "description": "Čisti sve površine - od plastike do metala. Bez amonijaka i fosfata.",
+    "price": 320.00,
+    "volume": "1.5L",
+    "image": "pro_v_1359003.jpg",
+    "available": false,
+    "category": "univerzalni",
+    "details": {
+      "Brend": "Svetlost",
+      "Zapremina": "1.5L",
+      "Rok upotrebe": "18 meseci",
+      "Način upotrebe": "Razblažiti s vodom 1:10"
     }
   }
 ]
