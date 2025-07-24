@@ -704,6 +704,7 @@
       width: 100%;
       position: relative;
       overflow: hidden;
+      margin-top: 30px;
     }
 
     .add-to-cart:hover {
@@ -1583,7 +1584,7 @@
 
     /* FAQ Styles */
     .faq-container {
-      max-width: 800px;
+      max-width: 600px;
       margin: 0 auto;
       padding: 2rem;
       background-color: white;
@@ -3090,80 +3091,204 @@
     // Inicijalizacija EmailJS
     emailjs.init('cTpLZ9yJhO-yUYPsA');
 
-    // Proizvodi u katalogu
-    let products = []; // Prazan niz koji će se popuniti iz JSON fajla
-
-    // Paginacija
+    // Globalne varijable
+    let products = [];
     let currentPage = 1;
-    const productsPerPage = 15; // Broj proizvoda po strani
+    const productsPerPage = 15;
     let cart = [];
+    let currentFilter = 'all';
+    let currentSort = 'default';
+    let currentProduct = null;
 
-    // Funkcija za učitavanje proizvoda iz JSON fajla
+    // DOMContentLoaded event handler
+    document.addEventListener('DOMContentLoaded', async function() {
+        await initializeApp();
+        setupEventListeners();
+    });
+
+    async function initializeApp() {
+        await loadCartFromStorage();
+        await loadProducts();
+        
+        const currentHash = window.location.hash.substring(1);
+        const validSections = ['glavna', 'katalog', 'blog', 'faq', 'onama'];
+        const blogArticles = ['blog-article-1', 'blog-article-2', 'blog-article-3'];
+
+        if (blogArticles.includes(currentHash)) {
+            showBlogArticle(currentHash);
+        } else if (validSections.includes(currentHash)) {
+            showSection(currentHash);
+        } else {
+            showSection('glavna');
+        }
+
+        showPromoBanner();
+    }
+
+    function setupEventListeners() {
+        // Back to top button
+        window.addEventListener("scroll", function() {
+            const btn = document.getElementById("backToTop");
+            btn.style.display = window.scrollY > 300 ? "block" : "none";
+        });
+
+        document.getElementById("backToTop").addEventListener("click", function() {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        // Newsletter form
+        document.querySelector('.newsletter-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('input').value;
+            showNotification("Hvala na pretplati! Poslali smo vam email sa potvrdom.");
+            this.reset();
+        });
+
+        // Modal close events
+        window.onclick = function(event) {
+            if (event.target === document.getElementById('productModal')) {
+                closeProductModal();
+            }
+            if (event.target === document.getElementById('cartModal')) {
+                closeCartModal();
+            }
+        };
+
+        // Navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener("click", function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute("href");
+                handleNavigation(targetId);
+            });
+        });
+    }
+
+    function handleNavigation(targetId) {
+        if (targetId === "#katalog") {
+            const section = document.querySelector(targetId);
+            if (section) {
+                section.scrollIntoView({ behavior: "smooth" });
+            }
+        } else {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            history.pushState(null, null, targetId);
+        }
+    }
+
+    // Product related functions
     async function loadProducts() {
         try {
             const response = await fetch('products.json');
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
+            if (!response.ok) throw new Error('Network response was not ok');
+            
             products = await response.json();
             console.log('Proizvodi uspešno učitani:', products);
             
-            // Ako smo na katalog stranici, prikaži proizvode
             if (window.location.hash === '#katalog') {
                 displayProducts();
             }
         } catch (error) {
             console.error('Greška pri učitavanju proizvoda:', error);
-            // Fallback na neke osnovne proizvode
-            products = [
-                {
-                    id: 1,
-                    name: "Deterdžent za veš Limun",
-                    description: "Tečni deterđent sa osvežavajućim mirisom limuna, za sve vrste veša. Persil DEEBICLEAN formula pruža izuzetno dubinsko čišćenje i briljantan miris. Pogodan za belo i obojeno veš. Sadrži prirodne komponente koje su bezbedne za kožu i okolinu.",
-                    price: "520.00",
-                    volume: "2.5L",
-                    image: "pro_v_1358264.jpg",
-                    available: true,
-                    category: "tecnosti",
-                    packageDetails: {
-                        "Brend": "Semana",
-                        "Zapremina": "2.5L",
-                        "Težina": "2.8kg",
-                        "Rok upotrebe": "36 meseci",
-                        "Način upotrebe": "Koristiti prema uputstvu na pakovanju"
-                    }
-                },
-                {
-                    id: 2,
-                    name: "Deterdžent za veš Lavanda",
-                    description: "Tečni deterđent sa mirisom lavande, nježan za kožu. Persil DEEBICLEAN tehnologija garantuje izuzetno čišćenje uz blagotvorno delovanje na osetljivu kožu. Ne sadrži agresivne hemikalije i boje. Preporučuje se za bebe i osobe sa osetljivom kožom.",
-                    price: "550.00",
-                    volume: "2.5L",
-                    image: "pro_v_1358264.jpg",
-                    available: true,
-                    category: "tecnosti",
-                    packageDetails: {
-                        "Brend": "Semana",
-                        "Zapremina": "2.5L",
-                        "Težina": "2.8kg",
-                        "Rok upotrebe": "36 meseci",
-                        "Način upotrebe": "Koristiti prema uputstvu na pakovanju"
-                    }
-                }
-            ];
-            if (window.location.hash === '#katalog') {
-                displayProducts();
-            }
+            loadFallbackProducts();
         }
     }
 
-    // Save cart to localStorage
-    function saveCartToStorage() {
-        localStorage.setItem('shoppingCart', JSON.stringify(cart));
+    function loadFallbackProducts() {
+        products = [
+            {
+                id: 1,
+                name: "Deterdžent za veš Limun",
+                description: "Tečni deterđent sa osvežavajućim mirisom limuna...",
+                price: "520.00",
+                volume: "2.5L",
+                image: "pro_v_1358264.jpg",
+                available: true,
+                category: "tecnosti",
+                packageDetails: {
+                    "Brend": "Semana",
+                    "Zapremina": "2.5L",
+                    "Težina": "2.8kg",
+                    "Rok upotrebe": "36 meseci",
+                    "Način upotrebe": "Koristiti prema uputstvu na pakovanju"
+                }
+            },
+            {
+                id: 2,
+                name: "Deterdžent za veš Lavanda",
+                description: "Tečni deterđent sa mirisom lavande...",
+                price: "550.00",
+                volume: "2.5L",
+                image: "pro_v_1358264.jpg",
+                available: true,
+                category: "tecnosti",
+                packageDetails: {
+                    "Brend": "Semana",
+                    "Zapremina": "2.5L",
+                    "Težina": "2.8kg",
+                    "Rok upotrebe": "36 meseci",
+                    "Način upotrebe": "Koristiti prema uputstvu na pakovanju"
+                }
+            }
+        ];
+        
+        if (window.location.hash === '#katalog') {
+            displayProducts();
+        }
     }
 
-    // Load cart from localStorage
-    function loadCartFromStorage() {
+function openProductModal(productId) {
+    const product = products.find(p => p.id === productId);
+    if (!product) {
+        console.error("Proizvod nije pronađen:", productId);
+        return;
+    }
+
+    currentProduct = product;
+    
+    // Postavite osnovne informacije
+    document.getElementById('modal-product-name').textContent = product.name;
+    document.getElementById('modal-product-price').textContent = `${product.price} RSD`;
+    document.getElementById('modal-product-description').textContent = product.description;
+    
+    // Postavite sliku sa fallback-om
+    const productImage = document.getElementById('modal-product-image');
+    productImage.src = product.image || 'placeholder.jpg';
+    productImage.alt = product.name;
+    
+    // Postavite dostupnost
+    const availabilityElement = document.getElementById('modal-product-availability');
+    if (availabilityElement) {
+        availabilityElement.innerHTML = `
+            <i class="fas ${product.available ? 'fa-check-circle in-stock' : 'fa-times-circle out-of-stock'}"></i>
+            ${product.available ? 'Na stanju' : 'Nema na stanju'}
+        `;
+    }
+    
+    // Popunite detalje proizvoda
+    const detailsList = document.getElementById('product-details-list');
+    if (detailsList) {
+        detailsList.innerHTML = '';
+        
+        const details = product.details || {};
+        for (const [key, value] of Object.entries(details)) {
+            const li = document.createElement('li');
+            li.innerHTML = `<span>${key}:</span> <span>${value}</span>`;
+            detailsList.appendChild(li);
+        }
+    }
+    
+    // Prikažite modal
+    document.getElementById('productModal').style.display = 'flex';
+}
+
+    function closeProductModal() {
+        document.getElementById('productModal').style.display = 'none';
+        currentProduct = null;
+    }
+
+    // Cart related functions
+    async function loadCartFromStorage() {
         const savedCart = localStorage.getItem('shoppingCart');
         if (savedCart) {
             cart = JSON.parse(savedCart);
@@ -3171,87 +3296,10 @@
         }
     }
 
-    let currentFilter = 'all';
-    let currentSort = 'default';
-    let currentProduct = null;
-
-    // Funkcija za prikaz modalnog prozora sa detaljima proizvoda
-    function openProductModal(productId) {
-        const product = products.find(p => p.id === productId);
-        if (!product) return;
-
-        currentProduct = product;
-        
-        document.getElementById('modal-product-name').textContent = product.name;
-        document.getElementById('modal-product-price').textContent = `${product.price} RSD`;
-        document.getElementById('modal-product-description').textContent = product.description;
-        document.getElementById('modal-product-image').src = product.image;
-        
-        const availabilityElement = document.getElementById('modal-product-availability');
-        availabilityElement.innerHTML = `
-            <i class="fas ${product.available ? 'fa-check-circle in-stock' : 'fa-times-circle out-of-stock'}"></i>
-            ${product.available ? 'Na stanju' : 'Nema na stanju'}
-        `;
-        
-        const detailsList = document.getElementById('product-details-list');
-        detailsList.innerHTML = '';
-        
-        for (const [key, value] of Object.entries(product.packageDetails)) {
-            const li = document.createElement('li');
-            li.innerHTML = `<span>${key}:</span> <span>${value}</span>`;
-            detailsList.appendChild(li);
-        }
-        
-        document.getElementById('productModal').style.display = 'flex';
+    function saveCartToStorage() {
+        localStorage.setItem('shoppingCart', JSON.stringify(cart));
     }
 
-    // Funkcija za zatvaranje modalnog prozora sa detaljima proizvoda
-    function closeProductModal() {
-        document.getElementById('productModal').style.display = 'none';
-        currentProduct = null;
-    }
-
-    // Funkcija za dodavanje trenutno prikazanog proizvoda u korpu
-    function addCurrentProductToCart() {
-        if (currentProduct) {
-            addToCart(currentProduct.id);
-        }
-    }
-
-    // Funkcija za dodavanje proizvoda u korpu
-    function addToCart(productId) {
-        const product = products.find(p => p.id === productId);
-        if (!product || !product.available) return;
-
-        const existingItem = cart.find(item => item.id === productId);
-        
-        if (existingItem) {
-            existingItem.quantity += 1;
-        } else {
-            cart.push({
-                id: product.id,
-                name: product.name,
-                price: parseFloat(product.price),
-                image: product.image,
-                quantity: 1
-            });
-        }
-        
-        updateCart();
-        showNotification(`${product.name} je dodat u korpu`);
-    }
-
-    // Funkcija za dodavanje kombo paketa u korpu
-    function addComboToCart() {
-        // Dodajemo sve proizvode iz kombo paketa
-        addToCart(1); // Deterdžent za veš Limun
-        addToCart(3); // Prasak za veš Classic
-        addToCart(4); // Omeksivač veša Cvetni miris
-        
-        showNotification("Kombi paket je dodat u korpu");
-    }
-
-    // Funkcija za ažuriranje prikaza korpe
     function updateCart() {
         const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
         document.getElementById('cart-count').textContent = cartCount;
@@ -3281,7 +3329,7 @@
             const cartItem = document.createElement('div');
             cartItem.className = 'cart-item';
             cartItem.innerHTML = `
-                <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+                <img src="${item.image || 'placeholder.jpg'}" alt="${item.name}" class="cart-item-image">
                 <div class="cart-item-info">
                     <div class="cart-item-name">${item.name}</div>
                     <div class="cart-item-price">${item.price.toFixed(2)} RSD</div>
@@ -3304,196 +3352,80 @@
         saveCartToStorage();
     }
 
-    // Funkcija za ažuriranje količine proizvoda u korpi
+    function addToCart(productId) {
+        const product = products.find(p => p.id === productId);
+        if (!product || !product.available) return;
+
+        const existingItem = cart.find(item => item.id === productId);
+        
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({
+                id: product.id,
+                name: product.name,
+                price: parseFloat(product.price),
+                image: product.image,
+                quantity: 1
+            });
+        }
+        
+        updateCart();
+        showNotification(`${product.name} je dodat u korpu`);
+    }
+
+    function addComboToCart() {
+        addToCart(1);
+        addToCart(3);
+        addToCart(4);
+        showNotification("Kombi paket je dodat u korpu");
+    }
+
     function updateCartItemQuantity(productId, change, newValue = null) {
         const item = cart.find(item => item.id === productId);
         if (!item) return;
         
         if (newValue !== null) {
             const quantity = parseInt(newValue);
-            if (quantity > 0) {
-                item.quantity = quantity;
-            }
+            item.quantity = quantity > 0 ? quantity : 1;
         } else {
-            item.quantity += change;
-            if (item.quantity < 1) {
-                item.quantity = 1;
-            }
+            item.quantity = Math.max(1, item.quantity + change);
         }
         
         updateCart();
     }
 
-    // Funkcija za uklanjanje proizvoda iz korpe
     function removeFromCart(productId) {
         cart = cart.filter(item => item.id !== productId);
         updateCart();
         showNotification("Proizvod je uklonjen iz korpe");
     }
 
-    // Funkcija za otvaranje korpe
     function openCartModal() {
         document.getElementById('cartModal').style.display = 'flex';
         document.body.classList.add('cart-open');
     }
 
-    // Funkcija za zatvaranje korpe
     function closeCartModal() {
         document.getElementById('cartModal').style.display = 'none';
         document.body.classList.remove('cart-open');
     }
 
-    // Funkcija za prikaz notifikacije
-    function showNotification(message) {
-        const notificationContainer = document.getElementById('notification-container') || createNotificationContainer();
-        const notification = document.createElement('div');
-        notification.className = 'notification';
-        notification.textContent = message;
-        
-        notificationContainer.appendChild(notification);
-        
-        // Animacija pojavljivanja
-        setTimeout(() => {
-            notification.style.opacity = '1';
-            notification.style.transform = 'translateY(0)';
-        }, 10);
-        
-        // Automatsko uklanjanje nakon 3 sekunde
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            notification.style.transform = 'translateY(-20px)';
-            setTimeout(() => {
-                notification.remove();
-            }, 300);
-        }, 3000);
-    }
-
-    // Kreirajte poseban kontejner za notifikacije ako ne postoji
-    function createNotificationContainer() {
-        const container = document.createElement('div');
-        container.id = 'notification-container';
-        container.style.position = 'fixed';
-        container.style.top = '80px';
-        container.style.right = '20px';
-        container.style.zIndex = '1000';
-        container.style.display = 'flex';
-        container.style.flexDirection = 'column';
-        container.style.gap = '10px';
-        document.body.appendChild(container);
-        return container;
-    }
-
-    function submitOrder() {
-        // Validacija formulara
-        const name = document.getElementById('order-name').value;
-        const phone = document.getElementById('order-phone').value;
-        const address = document.getElementById('order-address').value;
-        const city = document.getElementById('order-city').value;
-        const zip = document.getElementById('order-zip').value;
-        const email = document.getElementById('order-email').value;
-        const note = document.getElementById('order-note').value;
-        
-        let isValid = true;
-        
-        if (name.length < 6) {
-            document.getElementById('name-error').style.display = 'block';
-            isValid = false;
-        } else {
-            document.getElementById('name-error').style.display = 'none';
-        }
-        
-        if (phone.length < 8) {
-            document.getElementById('phone-error').style.display = 'block';
-            isValid = false;
-        } else {
-            document.getElementById('phone-error').style.display = 'none';
-        }
-        
-        if (address.length < 7) {
-            document.getElementById('address-error').style.display = 'block';
-            isValid = false;
-        } else {
-            document.getElementById('address-error').style.display = 'none';
-        }
-        
-        if (city.length < 3) {
-            document.getElementById('city-error').style.display = 'block';
-            isValid = false;
-        } else {
-            document.getElementById('city-error').style.display = 'none';
-        }
-        
-        if (zip.length < 4) {
-            document.getElementById('zip-error').style.display = 'block';
-            isValid = false;
-        } else {
-            document.getElementById('zip-error').style.display = 'none';
-        }
-        
-        if (!isValid) return;
-        
-        // Priprema podataka za slanje
-        const orderData = {
-            name,
-            phone,
-            address,
-            city,
-            zip,
-            email,
-            note,
-            items: cart.map(item => ({
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity,
-                total: (item.price * item.quantity).toFixed(2)
-            })),
-            total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2),
-            date: new Date().toLocaleString()
-        };
-        
-        // Slanje emaila preko EmailJS
-        emailjs.send('service_i5t5tvd', 'template_vb5wv1i', orderData)
-            .then(() => {
-                cart = [];
-                updateCart();
-                closeCartModal();
-                showThankYouMessage(); // Prikaz thank-you poruke sa vatrometom
-            }, (error) => {
-                showNotification("Došlo je do greške prilikom slanja porudžbine. Molimo pokušajte ponovo.");
-                console.error('EmailJS Error:', error);
-            });
-    }
-
-    // Funkcija za prikaz promocionog banera
-    function showPromoBanner() {
-        setTimeout(() => {
-            const promoBanner = document.getElementById('promoBanner');
-            if (!localStorage.getItem('promoBannerClosed')) {
-                promoBanner.style.display = 'block';
-            }
-        }, 5000);
-    }
-
-    // Funkcija za zatvaranje promocionog banera
-    function closePromoBanner() {
-        document.getElementById('promoBanner').style.display = 'none';
-        localStorage.setItem('promoBannerClosed', 'true');
-    }
-
-    // Funkcije za prikaz sekcija
+    // UI related functions
     function showSection(sectionId) {
         document.querySelectorAll('.section').forEach(section => {
             section.style.display = 'none';
         });
 
-        // Sakrij sve blog članke
         document.querySelectorAll('.blog-article').forEach(article => {
             article.style.display = 'none';
         });
 
         const sectionElement = document.getElementById(sectionId);
-        sectionElement.style.display = 'block';
-        sectionElement.style.animation = 'fadeIn 0.5s ease-out';
+        if (sectionElement) {
+            sectionElement.style.display = 'block';
+            sectionElement.style.animation = 'fadeIn 0.5s ease-out';
+        }
 
         if (sectionId === 'katalog') {
             document.body.classList.add('katalog-page');
@@ -3502,28 +3434,16 @@
             document.body.classList.remove('katalog-page');
         }
 
-        const searchContainer = document.querySelector('.search-container');
         const catalogSearch = document.getElementById('catalog-search');
-
-        if (sectionId === 'katalog') {
-            searchContainer.style.display = 'none';
-            catalogSearch.classList.add('active');
-        } else {
-            searchContainer.style.display = 'none';
-            catalogSearch.classList.remove('active');
-        }
+        catalogSearch.classList.toggle('active', sectionId === 'katalog');
 
         history.pushState(null, null, `#${sectionId}`);
 
         if (sectionId !== 'katalog') {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }
 
-    // Funkcija za prikaz blog članka
     function showBlogArticle(articleId) {
         document.querySelectorAll('.section').forEach(section => {
             section.style.display = 'none';
@@ -3538,47 +3458,39 @@
             article.style.display = 'block';
             article.style.animation = 'fadeIn 0.5s ease-out';
             history.pushState(null, null, `#${articleId}`);
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }
 
-    // Funkcija za toggle FAQ pitanja
     function toggleFaq(element) {
-        const faqItem = element.parentElement;
-        faqItem.classList.toggle('active');
+        element.parentElement.classList.toggle('active');
     }
 
-    // Pretraga proizvoda u katalogu
+    // Product display functions
     function searchCatalogProducts() {
         currentPage = 1;
         displayProducts();
     }
 
-    // Filter proizvoda
     function filterProducts(category, event) {
         event.preventDefault();
         currentFilter = category;
         currentPage = 1;
         document.getElementById('catalog-search-input').value = '';
         displayProducts();
+        
         document.querySelectorAll('.filter-options a').forEach(link => {
             link.classList.remove('active');
         });
         event.target.classList.add('active');
     }
 
-    // Sortiranje proizvoda
     function sortProducts() {
-        const sortSelect = document.getElementById('sort-products');
-        currentSort = sortSelect.value;
+        currentSort = document.getElementById('sort-products').value;
         currentPage = 1;
         displayProducts();
     }
 
-    // Sortiranje liste proizvoda
     function sortProductList(productList) {
         switch (currentSort) {
             case 'price-asc':
@@ -3594,7 +3506,6 @@
         }
     }
 
-    // Renderovanje proizvoda
     function renderProducts(productsToRender) {
         const container = document.getElementById('products-container');
         container.innerHTML = '';
@@ -3610,23 +3521,20 @@
             productCard.style.animation = `fadeIn 0.5s ease-out ${index * 0.1}s forwards`;
             productCard.style.opacity = '0';
 
-            let buttonHTML;
-            if (product.available) {
-                buttonHTML = `<button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id})">
-                            <i class="fas fa-cart-plus"></i> Dodaj u korpu
-                        </button>`;
-            } else {
-                buttonHTML = `<div class="out-of-stock-tooltip">
-                            <button class="add-to-cart" onclick="event.stopPropagation()" disabled style="opacity: 0.6; cursor: not-allowed;">
-                                <i class="fas fa-times-circle"></i> Nema na stanju
-                            </button>
-                            <span class="tooltiptext">Pozovite nas za proveru stanja</span>
-                        </div>`;
-            }
+            const buttonHTML = product.available
+                ? `<button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id})">
+                    <i class="fas fa-cart-plus"></i> Dodaj u korpu
+                  </button>`
+                : `<div class="out-of-stock-tooltip">
+                    <button class="add-to-cart" onclick="event.stopPropagation()" disabled style="opacity: 0.6; cursor: not-allowed;">
+                        <i class="fas fa-times-circle"></i> Nema na stanju
+                    </button>
+                    <span class="tooltiptext">Pozovite nas za proveru stanja</span>
+                  </div>`;
 
             productCard.innerHTML = `
                 <div class="product-image-container" onclick="openProductModal(${product.id})">
-                    <img src="${product.image}" alt="${product.name}" class="product-image">
+                    <img src="${product.image || 'placeholder.jpg'}" alt="${product.name}" class="product-image">
                 </div>
                 <div class="product-info">
                     <div class="product-text-content">
@@ -3652,110 +3560,94 @@
         });
     }
 
-    // Funkcija za renderovanje paginacije
     function renderPagination(totalProducts) {
-        const totalPages = Math.ceil(totalProducts / productsPerPage);
-        const paginationContainer = document.getElementById('pagination');
-        const paginationList = paginationContainer.querySelector('.pagination-list');
-        
-        // Očistimo postojeće brojeve stranica (ostavljamo strelice)
-        while (paginationList.children.length > 2) {
-            paginationList.removeChild(paginationList.children[1]);
-        }
-        
-        // Dodajemo brojeve stranica
-        const maxVisiblePages = 5;
-        let startPage, endPage;
-        
-        if (totalPages <= maxVisiblePages) {
-            startPage = 1;
-            endPage = totalPages;
-        } else {
-            const maxPagesBeforeCurrent = Math.floor(maxVisiblePages / 2);
-            const maxPagesAfterCurrent = Math.ceil(maxVisiblePages / 2) - 1;
-            
-            if (currentPage <= maxPagesBeforeCurrent) {
-                startPage = 1;
-                endPage = maxVisiblePages;
-            } else if (currentPage + maxPagesAfterCurrent >= totalPages) {
-                startPage = totalPages - maxVisiblePages + 1;
-                endPage = totalPages;
-            } else {
-                startPage = currentPage - maxPagesBeforeCurrent;
-                endPage = currentPage + maxPagesAfterCurrent;
-            }
-        }
-        
-        // Add first page and ellipsis if needed
-        if (startPage > 1) {
-            const li = document.createElement('li');
-            li.className = 'pagination-item';
-            li.innerHTML = `<a href="#" class="pagination-link" onclick="goToPage(1)">1</a>`;
-            paginationList.insertBefore(li, paginationList.children[1]);
-            
-            if (startPage > 2) {
-                const dotsLi = document.createElement('li');
-                dotsLi.className = 'pagination-item';
-                dotsLi.innerHTML = `<span class="pagination-dots">...</span>`;
-                paginationList.insertBefore(dotsLi, paginationList.children[2]);
-            }
-        }
-        
-        // Add page numbers
-        for (let i = startPage; i <= endPage; i++) {
-            const li = document.createElement('li');
-            li.className = 'pagination-item';
-            li.innerHTML = `
-                <a href="#" class="pagination-link ${i === currentPage ? 'active' : ''}" 
-                   onclick="goToPage(${i})">${i}</a>
-            `;
-            paginationList.insertBefore(li, paginationList.lastChild);
-        }
-        
-        // Add last page and ellipsis if needed
-        if (endPage < totalPages) {
-            if (endPage < totalPages - 1) {
-                const dotsLi = document.createElement('li');
-                dotsLi.className = 'pagination-item';
-                dotsLi.innerHTML = `<span class="pagination-dots">...</span>`;
-                paginationList.insertBefore(dotsLi, paginationList.lastChild);
-            }
-            
-            const li = document.createElement('li');
-            li.className = 'pagination-item';
-            li.innerHTML = `<a href="#" class="pagination-link" onclick="goToPage(${totalPages})">${totalPages}</a>`;
-            paginationList.insertBefore(li, paginationList.lastChild);
-        }
-        
-        // Ažuriramo stanje strelica
-        const prevPage = document.getElementById('prev-page');
-        const nextPage = document.getElementById('next-page');
-        
-        prevPage.classList.toggle('disabled', currentPage === 1);
-        nextPage.classList.toggle('disabled', currentPage === totalPages);
-        
-        // Osiguravamo da strelica ">" uvek ostane poslednji element
-        if (paginationList.lastChild !== nextPage.parentElement) {
-            paginationList.appendChild(nextPage.parentElement);
+    const totalPages = Math.ceil(totalProducts / productsPerPage);
+    const paginationContainer = document.getElementById('pagination');
+    const paginationList = paginationContainer.querySelector('.pagination-list');
+    
+    // Clear existing pagination
+    paginationList.innerHTML = '';
+    
+    // Add Previous button
+    const prevLi = document.createElement('li');
+    prevLi.className = 'pagination-item';
+    prevLi.innerHTML = `
+        <a href="#" class="pagination-link ${currentPage === 1 ? 'disabled' : ''}" 
+           onclick="changePage(-1)" id="prev-page">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+    `;
+    paginationList.appendChild(prevLi);
+    
+    // Add page numbers
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages/2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    // Adjust if we're at the end
+    if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    // Add first page and ellipsis if needed
+    if (startPage > 1) {
+        addPageToPagination(paginationList, 1);
+        if (startPage > 2) {
+            addEllipsisToPagination(paginationList);
         }
     }
+    
+    // Add visible pages
+    for (let i = startPage; i <= endPage; i++) {
+        addPageToPagination(paginationList, i);
+    }
+    
+    // Add last page and ellipsis if needed
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            addEllipsisToPagination(paginationList);
+        }
+        addPageToPagination(paginationList, totalPages);
+    }
+    
+    // Add Next button
+    const nextLi = document.createElement('li');
+    nextLi.className = 'pagination-item';
+    nextLi.innerHTML = `
+        <a href="#" class="pagination-link ${currentPage === totalPages ? 'disabled' : ''}" 
+           onclick="changePage(1)" id="next-page">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+    `;
+    paginationList.appendChild(nextLi);
+}
 
-    // Funkcija za promenu stranice
+function addPageToPagination(paginationList, page) {
+    const li = document.createElement('li');
+    li.className = 'pagination-item';
+    li.innerHTML = `
+        <a href="#" class="pagination-link ${page === currentPage ? 'active' : ''}" 
+           onclick="goToPage(${page})">${page}</a>
+    `;
+    paginationList.appendChild(li);
+}
+
+function addEllipsisToPagination(paginationList) {
+    const li = document.createElement('li');
+    li.className = 'pagination-item';
+    li.innerHTML = `<span class="pagination-dots">...</span>`;
+    paginationList.appendChild(li);
+}
+
     function changePage(direction) {
         const totalPages = Math.ceil(getFilteredProducts().length / productsPerPage);
         const newPage = currentPage + direction;
         
         if (newPage > 0 && newPage <= totalPages) {
-            currentPage = newPage;
-            displayProducts();
-            window.scrollTo({
-                top: document.getElementById('products-container').offsetTop - 100,
-                behavior: 'smooth'
-            });
+            goToPage(newPage);
         }
     }
 
-    // Funkcija za direktan skok na stranicu
     function goToPage(page) {
         currentPage = page;
         displayProducts();
@@ -3765,11 +3657,10 @@
         });
     }
 
-    // Funkcija za dobijanje filtriranih proizvoda
     function getFilteredProducts() {
-        let filteredProducts = currentFilter === 'all' ? 
-            [...products] : 
-            products.filter(p => p.category === currentFilter);
+        let filteredProducts = currentFilter === 'all' 
+            ? [...products] 
+            : products.filter(p => p.category === currentFilter);
         
         const searchTerm = document.getElementById('catalog-search-input').value.toLowerCase();
         
@@ -3783,7 +3674,6 @@
         return sortProductList(filteredProducts);
     }
 
-    // Ažurirana funkcija za prikaz proizvoda
     function displayProducts() {
         const filteredProducts = getFilteredProducts();
         const totalProducts = filteredProducts.length;
@@ -3794,128 +3684,181 @@
         renderPagination(totalProducts);
     }
 
-    // Inicijalizacija
-    document.addEventListener('DOMContentLoaded', function() {
-        loadCartFromStorage(); // Učitaj korpu iz localStorage
-        loadProducts(); // Učitaj proizvode iz JSON fajla
+    // Notification functions
+    function showNotification(message) {
+        const notificationContainer = document.getElementById('notification-container') || createNotificationContainer();
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.textContent = message;
         
-        const currentHash = window.location.hash.substring(1);
-        const validSections = ['glavna', 'katalog', 'blog', 'faq', 'onama'];
-        const blogArticles = ['blog-article-1', 'blog-article-2', 'blog-article-3'];
+        notificationContainer.appendChild(notification);
+        
+        // Show animation
+        setTimeout(() => {
+            notification.style.opacity = '1';
+            notification.style.transform = 'translateY(0)';
+        }, 10);
+        
+        // Auto-remove after 3 seconds
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateY(-20px)';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
 
-        let defaultSection = 'glavna';
+    function createNotificationContainer() {
+        const container = document.createElement('div');
+        container.id = 'notification-container';
+        container.style.position = 'fixed';
+        container.style.top = '80px';
+        container.style.right = '20px';
+        container.style.zIndex = '1000';
+        container.style.display = 'flex';
+        container.style.flexDirection = 'column';
+        container.style.gap = '10px';
+        document.body.appendChild(container);
+        return container;
+    }
 
-        if (blogArticles.includes(currentHash)) {
-            showBlogArticle(currentHash);
-        }
-        else if (validSections.includes(currentHash)) {
-            showSection(currentHash);
+    // Order functions
+    function submitOrder() {
+        // Form validation
+        const name = document.getElementById('order-name').value;
+        const phone = document.getElementById('order-phone').value;
+        const address = document.getElementById('order-address').value;
+        const city = document.getElementById('order-city').value;
+        const zip = document.getElementById('order-zip').value;
+        const email = document.getElementById('order-email').value;
+        const note = document.getElementById('order-note').value;
+        
+        // Validate fields
+        const isValid = validateFormFields(name, phone, address, city, zip);
+        if (!isValid) return;
+        
+        // Prepare order data
+        const orderData = {
+            name,
+            phone,
+            address,
+            city,
+            zip,
+            email,
+            note,
+            items: cart.map(item => ({
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                total: (item.price * item.quantity).toFixed(2)
+            })),
+            total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2),
+            date: new Date().toLocaleString()
+        };
+        
+        // Send email via EmailJS
+        emailjs.send('service_i5t5tvd', 'template_vb5wv1i', orderData)
+            .then(() => {
+                cart = [];
+                updateCart();
+                closeCartModal();
+                showThankYouMessage();
+            })
+            .catch(error => {
+                showNotification("Došlo je do greške prilikom slanja porudžbine. Molimo pokušajte ponovo.");
+                console.error('EmailJS Error:', error);
+            });
+    }
+
+    function validateFormFields(name, phone, address, city, zip) {
+        let isValid = true;
+        
+        // Name validation
+        if (name.length < 6) {
+            document.getElementById('name-error').style.display = 'block';
+            isValid = false;
         } else {
-            showSection(defaultSection);
+            document.getElementById('name-error').style.display = 'none';
         }
-
-        if (currentHash === 'katalog') {
-            displayProducts();
+        
+        // Phone validation
+        if (phone.length < 8) {
+            document.getElementById('phone-error').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('phone-error').style.display = 'none';
         }
+        
+        // Address validation
+        if (address.length < 7) {
+            document.getElementById('address-error').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('address-error').style.display = 'none';
+        }
+        
+        // City validation
+        if (city.length < 3) {
+            document.getElementById('city-error').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('city-error').style.display = 'none';
+        }
+        
+        // ZIP validation
+        if (zip.length < 4) {
+            document.getElementById('zip-error').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('zip-error').style.display = 'none';
+        }
+        
+        return isValid;
+    }
 
-        window.addEventListener("scroll", function() {
-            const btn = document.getElementById("backToTop");
-            if (window.scrollY > 300) {
-                btn.style.display = "block";
-            } else {
-                btn.style.display = "none";
+    // Promo banner functions
+    function showPromoBanner() {
+        setTimeout(() => {
+            const promoBanner = document.getElementById('promoBanner');
+            if (!localStorage.getItem('promoBannerClosed')) {
+                promoBanner.style.display = 'block';
             }
-        });
+        }, 5000);
+    }
 
-        document.getElementById("backToTop").addEventListener("click", function() {
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth"
-            });
-        });
+    function closePromoBanner() {
+        document.getElementById('promoBanner').style.display = 'none';
+        localStorage.setItem('promoBannerClosed', 'true');
+    }
 
-        showPromoBanner();
-
-        document.querySelector('.newsletter-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = this.querySelector('input').value;
-            showNotification("Hvala na pretplati! Poslali smo vam email sa potvrdom.");
-            this.reset();
-        });
-    });
-
-    // Zatvaranje modala klikom izvan sadržaja
-    window.onclick = function(event) {
-        if (event.target === document.getElementById('productModal')) {
-            closeProductModal();
-        }
-        if (event.target === document.getElementById('cartModal')) {
-            closeCartModal();
-        }
-    };
-
-    // Event listeneri za linkove
-    document.addEventListener("DOMContentLoaded", function() {
-        document.querySelectorAll('a[href^="#"]').forEach(link => {
-            link.addEventListener("click", function(e) {
-                e.preventDefault();
-                const targetId = this.getAttribute("href");
-
-                if (targetId === "#katalog") {
-                    const section = document.querySelector(targetId);
-                    if (section) {
-                        section.scrollIntoView({
-                            behavior: "smooth"
-                        });
-                    }
-                } else {
-                    window.scrollTo({
-                        top: 0,
-                        behavior: "smooth"
-                    });
-                    history.pushState(null, null, targetId);
-                }
-            });
-        });
-    });
-
-    // Funkcija za prikaz thank-you poruke sa vatrometom
+    // Thank you message functions
     function showThankYouMessage() {
         const overlay = document.getElementById('thankYouOverlay');
         overlay.style.display = 'flex';
-        
-        // Pokrećemo vatromet
         startFireworks();
     }
 
-    // Funkcija za zatvaranje thank-you poruke
     function closeThankYouMessage() {
         document.getElementById('thankYouOverlay').style.display = 'none';
     }
 
-    // Funkcija za pokretanje vatrometa
     function startFireworks() {
         const overlay = document.getElementById('thankYouOverlay');
         const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
         
-        // Kreiraj 50 vatrometa
         for (let i = 0; i < 50; i++) {
             setTimeout(() => {
                 const firework = document.createElement('div');
                 firework.className = 'firework';
                 
-                // Nasumična boja
                 const color = colors[Math.floor(Math.random() * colors.length)];
                 firework.style.backgroundColor = color;
                 firework.style.boxShadow = `0 0 10px 5px ${color}`;
                 
-                // Nasumična početna pozicija
                 const startX = Math.random() * 100;
                 const startY = Math.random() * 100;
                 firework.style.left = `${startX}%`;
                 firework.style.top = `${startY}%`;
                 
-                // Nasumični pravac kretanja
                 const angle = Math.random() * Math.PI * 2;
                 const distance = 50 + Math.random() * 100;
                 const tx = Math.cos(angle) * distance;
@@ -3926,13 +3869,32 @@
                 
                 overlay.appendChild(firework);
                 
-                // Ukloni element nakon animacije
-                setTimeout(() => {
-                    firework.remove();
-                }, 1000);
+                setTimeout(() => firework.remove(), 1000);
             }, i * 100);
         }
     }
+
+    // Make functions available globally
+    window.openProductModal = openProductModal;
+    window.closeProductModal = closeProductModal;
+    window.addToCart = addToCart;
+    window.addComboToCart = addComboToCart;
+    window.updateCartItemQuantity = updateCartItemQuantity;
+    window.removeFromCart = removeFromCart;
+    window.openCartModal = openCartModal;
+    window.closeCartModal = closeCartModal;
+    window.submitOrder = submitOrder;
+    window.showSection = showSection;
+    window.showBlogArticle = showBlogArticle;
+    window.toggleFaq = toggleFaq;
+    window.searchCatalogProducts = searchCatalogProducts;
+    window.filterProducts = filterProducts;
+    window.sortProducts = sortProducts;
+    window.changePage = changePage;
+    window.goToPage = goToPage;
+    window.closePromoBanner = closePromoBanner;
+    window.closeThankYouMessage = closeThankYouMessage;
+    window.addCurrentProductToCart = addCurrentProductToCart;
 </script>
 </body>
 </html>
